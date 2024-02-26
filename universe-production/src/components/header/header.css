@@ -1,5 +1,9 @@
 .navbar {
-    background-color: aqua;
+    position: absolute;
+    top: 0;
+    background-color: transparent;
     height: 70px;
     width: 100%;
+    color: azure;
+    font-size: 2rem;
 }
