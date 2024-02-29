@@ -1,0 +1,59 @@
+.navbar {
+    position: absolute;
+    top: 0;
+    background-color: transparent;
+    height: 70px;
+    width: 100%;
+    color: azure;
+    font-size: 2rem;
+    z-index: 100;
+    overflow: visible;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+.hamburger {
+    margin: 25px;
+}
+
+.menu-section {
+    z-index: 1000;
+    position: absolute;
+    background: url(../../images/nav-background.jpg);
+    left: -100%;
+    top: 0;
+    width: 30%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    transition-duration: 0.9s;
+    transition-timing-function: ease;
+}
+
+.menu-section.active {
+    left: 0;
+    transition-duration: 0.9s;
+    transition-timing-function: ease;
+}
+
+@media only screen and (max-width: 600px) {
+    .menu-section {
+        width: 100%;
+        height: 40vh;
+        justify-content: start;
+        gap: 30px;
+    }
+
+    .menu-section a {
+        font-size: 1rem;
+    }
+
+    .menu-section.active {
+        left: 0;
+    }
+}

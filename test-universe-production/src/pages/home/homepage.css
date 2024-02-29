@@ -1,0 +1,89 @@
+.wrapper {
+    height: 100vh;
+}
+
+.homepage {
+    background-image: url(../../images/Home-background.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+}
+
+.earth {
+    position: absolute;
+    top: 0%;
+    width: 30%;
+    right: 0%;
+}
+
+.spaceship {
+    width: 20%;
+    position: absolute;
+    top: 10%;
+    left: -20%;
+}
+.logo {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%);
+    width: 40%;
+}
+
+.logo h1 {
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    font-size: 4rem;
+    text-transform: uppercase;
+    text-align: center;
+    color: hsl(0, 0%, 100%);
+    text-shadow: 1px 1px 1px rgb(16, 15, 15);
+}
+
+.foreground {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0%;
+}
+
+@media only screen and (max-width: 1000px) {
+    .earth {
+        top: 0%;
+        width: 45%;
+        right: 0%;
+    }
+
+    .logo {
+        width: 40%;
+    }
+
+    .logo h1 {
+        font-size: 3rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .foreground {
+        bottom: 0%;
+    }
+
+    .spaceship {
+        width: 50%;
+        top: 30%;
+    }
+
+    .earth {
+        top: 45%;
+        width: 100%;
+        right: 0%;
+    }
+
+    .logo {
+        width: 85%;
+        top: 55%;
+    }
+
+    .logo h1 {
+        font-size: 2rem;
+    }
+}
