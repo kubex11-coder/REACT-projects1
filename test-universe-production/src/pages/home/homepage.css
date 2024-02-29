@@ -174,6 +174,7 @@ a:hover {
         top: 0;
     }
     .foreground {
+        width: 150%;
         bottom: 0%;
     }
 
@@ -190,21 +191,10 @@ a:hover {
 
     .logo {
         width: 85%;
-        top: 55%;
+        top: 35%;
     }
 
     .logo h1 {
         font-size: 2rem;
     }
-    /* .star1 {
-        width: 100px;
-    }
-
-    .star2 {
-        width: 100px;
-    }
-
-    .star3 {
-        width: 100px;
-    } */
 }
