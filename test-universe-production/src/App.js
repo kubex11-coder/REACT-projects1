@@ -5,19 +5,16 @@ import Home from "./pages/home/Homepage"
 import Services from "./pages/naše-služby/services"
 import About from "./pages/o-nás/about"
 import Foto from "./pages/fotogalerie/foto"
-import SharedLayout from "./pages/sharedLayout/sharedLayout"
 
 const App = () => {
     return (
         <>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<SharedLayout />}>
-                        <Route index element={<Home />} />
-                        <Route path="/onas" element={<About />} />
-                        <Route path="sluzby" element={<Services />} />
-                        <Route path="/foto" element={<Foto />} />
-                    </Route>
+                    <Route index element={<Home />} />
+                    <Route path="/onas" element={<About />} />
+                    <Route path="/sluzby" element={<Services />} />
+                    <Route path="/foto" element={<Foto />} />
                 </Routes>
             </BrowserRouter>
         </>
