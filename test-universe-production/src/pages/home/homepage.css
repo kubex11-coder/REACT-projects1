@@ -174,8 +174,9 @@ a:hover {
         top: 0;
     }
     .foreground {
-        width: 150%;
+        width: 250%;
         bottom: 0%;
+        left: -50%;
     }
 
     .spaceship {
@@ -184,17 +185,17 @@ a:hover {
     }
 
     .earth {
-        top: 45%;
+        top: 30%;
         width: 100%;
         right: 0%;
     }
 
     .logo {
         width: 85%;
-        top: 35%;
+        top: 45%;
     }
 
     .logo h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
     }
 }
