@@ -3,6 +3,10 @@
     background-color: aquamarine;
 }
 
+.wrapper {
+    height: 100vh;
+    overflow: hidden;
+}
 .onas-hero {
     /* position: relative; */
     background-image: url(../../images/onas-background.jpg);
@@ -23,6 +27,10 @@
     overflow: visible;
 }
 
+a {
+    text-decoration: none;
+    color: white;
+}
 .menu-link {
     text-shadow: 1px 1px 1px black;
 }
@@ -31,6 +39,79 @@
     text-shadow: 5px 5px 10px aqua;
     scale: 1.1;
     transition-duration: 0.5s;
+}
+
+.hamburger {
+    margin: 25px;
+}
+
+.cross {
+    margin: 25px;
+}
+
+.hamburger.active {
+    display: none;
+}
+
+.menu-section {
+    z-index: 1000;
+    position: absolute;
+    /* position: fixed; */
+    background: transparent;
+    background-color: rgba(109, 124, 136, 0.2);
+    left: -100%;
+    top: 0;
+    width: 30%;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    transition-duration: 0.9s;
+    transition-timing-function: ease;
+}
+
+.menu-section.active {
+    left: 0;
+    transition-duration: 0.9s;
+    transition-timing-function: ease;
+}
+
+.star1 {
+    position: absolute;
+    top: 0%;
+    left: 30%;
+    width: 75px;
+}
+
+.star2 {
+    position: absolute;
+    top: 10%;
+    left: 60%;
+    width: 75px;
+}
+
+.star3 {
+    position: absolute;
+    top: 10%;
+    left: 15%;
+    width: 75px;
+}
+
+.star4 {
+    position: absolute;
+    top: 5%;
+    left: 25%;
+    width: 75px;
+}
+
+.star5 {
+    position: absolute;
+    top: 0%;
+    left: 55%;
+    width: 75px;
 }
 
 .planetgreen {
@@ -75,7 +156,7 @@
     text-transform: uppercase;
     text-align: center;
     color: hsl(0, 0%, 98%);
-    text-shadow: 1px 1px 1px rgb(107, 235, 118);
+    text-shadow: 3px 3px 1px rgb(107, 235, 118);
 }
 
 .onas-foreground {
@@ -89,6 +170,7 @@
     width: 100%;
     position: absolute;
     left: 20%;
+    /* bottom: 0%; */
     bottom: -10%;
 }
 
@@ -140,6 +222,23 @@
 }
 
 @media only screen and (max-width: 600px) {
+    .menu-section {
+        background: transparent;
+        width: 100%;
+        height: 50vh;
+        top: -50vh;
+        left: 0;
+        justify-content: start;
+        gap: 30px;
+    }
+
+    .menu-section a {
+        font-size: 1rem;
+    }
+
+    .menu-section.active {
+        top: 0;
+    }
     .onas-foreground {
         width: 250%;
         bottom: 0%;
@@ -161,6 +260,11 @@
     .astr2 {
         display: none;
     }
+
+    /* .astrparty {
+        left: 0;
+        width: 20%;
+    } */
 
     .astrfotbal {
         display: block;
@@ -195,7 +299,7 @@
 
     .onas-logo {
         width: 85%;
-        top: 300px;
+        top: 350px;
     }
 
     .onas-logo h1 {

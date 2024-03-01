@@ -1,0 +1,129 @@
+.nabizime-foreground {
+    position: absolute;
+    bottom: -25%;
+    width: 100%;
+}
+
+.nabizime-hero {
+    /* position: relative; */
+    background-image: url(../../images/nabizime-background.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+}
+
+.astronaut-beer {
+    position: absolute;
+    width: 45%;
+    left: 0;
+    bottom: 0;
+}
+
+.astronaut-dj {
+    position: absolute;
+    width: 22%;
+    bottom: 0;
+    right: 0%;
+}
+
+#astronaut-main {
+    width: 105%;
+    left: 22%;
+}
+
+.astro-letajici {
+    position: absolute;
+    width: 10%;
+    top: 0%;
+    left: 0;
+}
+
+.barrel {
+    width: 8%;
+    position: absolute;
+    bottom: -5%;
+}
+
+.barrel-1 {
+    width: 9%;
+    left: 20%;
+}
+.barrel-2 {
+    width: 20%;
+    left: 28%;
+    bottom: -5%;
+}
+
+.repro {
+    position: absolute;
+    bottom: -5%;
+    width: 20%;
+    right: 15%;
+}
+
+.nabizime-logo {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%);
+    width: 40%;
+}
+.nabizime-logo h1 {
+    font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+    font-size: 6rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-align: center;
+    color: hsl(0, 0%, 98%);
+    text-shadow: 1px 1px 1px rgb(237, 15, 185);
+}
+
+@media only screen and (max-width: 1000px) {
+    .nabizime-logo {
+        width: 40%;
+    }
+
+    .nabizime-logo h1 {
+        font-size: 3rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .nabizime-hero {
+        /* position: relative; */
+        background-position: center;
+    }
+
+    .nabizime-foreground {
+        width: 250%;
+        bottom: 0%;
+        left: -50%;
+    }
+
+    #astronaut-main {
+        width: 400%;
+        left: -120%;
+        bottom: -10%;
+    }
+    .astronaut-dj {
+        display: none;
+    }
+
+    .astronaut-beer {
+        position: absolute;
+        width: 150%;
+    }
+
+    .astro-letajici {
+        width: 30%;
+    }
+
+    .nabizime-logo {
+        width: 85%;
+        top: 350px;
+    }
+
+    .nabizime-logo h1 {
+        font-size: 3rem;
+    }
+}

@@ -117,7 +117,7 @@ const About = () => {
                             repeat: Infinity,
                         }}
                     />
-                    <motion.img
+                    {/* <motion.img
                         className="planetgrey"
                         src={PLANET1}
                         alt=""
@@ -127,7 +127,7 @@ const About = () => {
                             repeat: Infinity,
                             repeatType: "mirror",
                         }}
-                    />
+                    /> */}
                     <motion.img
                         className="planetgreen"
                         src={PLANET}
