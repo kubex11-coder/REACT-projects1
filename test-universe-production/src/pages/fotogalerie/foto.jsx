@@ -1,7 +1,7 @@
 import React from "react"
 
-const foto = () => {
+const Foto = () => {
     return <div>foto</div>
 }
 
-export default foto
+export default Foto

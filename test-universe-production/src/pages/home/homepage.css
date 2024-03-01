@@ -1,8 +1,22 @@
+.homepage-wrapper {
+    min-height: 200vh;
+    background-color: aquamarine;
+}
+
 .wrapper {
     height: 100vh;
+    overflow: hidden;
 }
+.homepage {
+    /* position: relative; */
+    background-image: url(../../images/Home-background.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100%;
+}
+
 .navbar {
-    position: absolute;
+    position: fixed;
     top: 0;
     background-color: transparent;
     height: 70px;
@@ -17,12 +31,21 @@ a {
     text-decoration: none;
     color: white;
 }
+.menu-link {
+    text-shadow: 1px 1px 1px black;
+}
 
-a:hover {
+.menu-link:hover {
     text-shadow: 5px 5px 10px aqua;
+    scale: 1.1;
+    transition-duration: 0.5s;
 }
 
 .hamburger {
+    margin: 25px;
+}
+
+.cross {
     margin: 25px;
 }
 
@@ -33,12 +56,14 @@ a:hover {
 .menu-section {
     z-index: 1000;
     position: absolute;
-    /* background: url(../../images/nav-background.jpg); */
+    /* position: fixed; */
     background: transparent;
+    background-color: rgba(109, 124, 136, 0.2);
     left: -100%;
     top: 0;
     width: 30%;
     height: 100vh;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -52,13 +77,6 @@ a:hover {
     left: 0;
     transition-duration: 0.9s;
     transition-timing-function: ease;
-}
-
-.homepage {
-    background-image: url(../../images/Home-background.jpg);
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100%;
 }
 
 .star1 {
@@ -109,12 +127,7 @@ a:hover {
     top: 20%;
     left: -20%;
 }
-/* .bucanero {
-    width: 20%;
-    position: absolute;
-    left: 50%;
-    bottom: 0%;
-} */
+
 .logo {
     position: absolute;
     top: 40%;
@@ -136,7 +149,8 @@ a:hover {
     width: 100%;
     position: absolute;
     left: 0;
-    bottom: 0%;
+    /* bottom: 0%; */
+    bottom: 0px;
 }
 
 @media only screen and (max-width: 1000px) {

@@ -2,9 +2,9 @@ import React from "react"
 import "./index.css"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Home from "./pages/home/Homepage"
-import Services from "./pages/naše-služby/services"
-import About from "./pages/o-nás/about"
-import Foto from "./pages/fotogalerie/foto"
+import Services from "./pages/naše-služby/Services"
+import About from "./pages/o-nás/About"
+import Foto from "./pages/fotogalerie/Foto"
 
 const App = () => {
     return (
