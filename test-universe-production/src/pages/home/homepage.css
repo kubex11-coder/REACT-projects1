@@ -185,14 +185,14 @@ a:hover {
     }
 
     .earth {
-        top: 30%;
+        top: 250px;
         width: 100%;
         right: 0%;
     }
 
     .logo {
         width: 85%;
-        top: 45%;
+        top: 350px;
     }
 
     .logo h1 {
