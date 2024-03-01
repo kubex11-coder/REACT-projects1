@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { ImCross } from "react-icons/im"
 import { useState } from "react"
+import { Link } from "react-router-dom"
 
 const Homepage = () => {
     const [isActive, setIsActive] = useState(false)
@@ -36,31 +37,16 @@ const Homepage = () => {
                         <a href="#">
                             <ImCross className="cross" onClick={handleClick} />
                         </a>
-                        {/* <a href="/">DOMŮ</a> */}
-                        <motion.a
-                            href="/onas"
-                            className={
-                                isActive ? "menu-link active" : "menu-link"
-                            }
-                        >
+
+                        <Link to="/onas" className="menu-link">
                             O NÁS
-                        </motion.a>
-                        <motion.a
-                            href="/sluzby"
-                            className={
-                                isActive ? "menu-link active" : "menu-link"
-                            }
-                        >
+                        </Link>
+                        <Link to="/sluzby" className="menu-link">
                             NABÍZÍME
-                        </motion.a>
-                        <motion.a
-                            href="/foto"
-                            className={
-                                isActive ? "menu-link active" : "menu-link"
-                            }
-                        >
+                        </Link>
+                        <Link to="/foto" className="menu-link">
                             KONTAKTY
-                        </motion.a>
+                        </Link>
                     </div>
                 </div>
                 <motion.div
