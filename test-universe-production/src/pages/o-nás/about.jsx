@@ -48,7 +48,7 @@ const About = () => {
                         <Link to="/sluzby" className="menu-link">
                             NABÍZÍME
                         </Link>
-                        <Link to="/foto" className="menu-link">
+                        <Link to="/kontakty" className="menu-link">
                             KONTAKTY
                         </Link>
                     </div>

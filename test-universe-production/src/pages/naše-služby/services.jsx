@@ -48,7 +48,7 @@ const Services = () => {
                         <Link to="/onas" className="menu-link">
                             O NÁS
                         </Link>
-                        <Link to="/foto" className="menu-link">
+                        <Link to="/kontakty" className="menu-link">
                             KONTAKTY
                         </Link>
                     </div>
@@ -156,7 +156,7 @@ const Services = () => {
                         src={Astronaut}
                         alt=""
                         className="astronaut"
-                        id="astronaut-main"
+                        id="astronaut-main1"
                     />
                     <motion.img
                         src={Barrel1}
