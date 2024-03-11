@@ -1,6 +1,7 @@
 .homepage-wrapper {
     min-height: 200vh;
     background-color: aquamarine;
+    overflow: hidden;
 }
 
 .wrapper {
