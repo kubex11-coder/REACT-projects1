@@ -21,22 +21,31 @@ const Homepage = () => {
         <div className="homepage-wrapper">
             <div className="wrapper">
                 <div className="navbar">
-                    <a href="#">
+                    <button
+                        type="button"
+                        className="icon-control"
+                        aria-label="Open menu"
+                        onClick={handleClick}
+                    >
                         <GiHamburgerMenu
                             className={
                                 isActive ? "hamburger active" : "hamburger"
                             }
-                            onClick={handleClick}
                         />
-                    </a>
+                    </button>
                     <div
                         className={
                             isActive ? "menu-section active" : "menu-section"
                         }
                     >
-                        <a href="#">
-                            <ImCross className="cross" onClick={handleClick} />
-                        </a>
+                        <button
+                            type="button"
+                            className="icon-control"
+                            aria-label="Close menu"
+                            onClick={handleClick}
+                        >
+                            <ImCross className="cross" />
+                        </button>
 
                         <Link to="/onas" className="menu-link">
                             O NÁS

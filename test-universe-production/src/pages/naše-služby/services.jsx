@@ -1,9 +1,7 @@
 import React from "react"
 import "./services.css"
-import PLANET from "../../images/planet-green.png"
 import Foreground from "../../images/nabizime-foreground.png"
 import STAR from "../../images/STAR.png"
-import UFO from "../../images/UFO.png"
 import Astronaut from "../../images/astronaut-main.png"
 import Astronautbeer from "../../images/astr-beer.png"
 import AstroDJ from "../../images/Astro-dj.png"
@@ -26,22 +24,31 @@ const Services = () => {
         <div className="onas-wrapper">
             <div className="wrapper">
                 <div className="onas-navbar">
-                    <a href="#">
+                    <button
+                        type="button"
+                        className="icon-control"
+                        aria-label="Open menu"
+                        onClick={handleClick}
+                    >
                         <GiHamburgerMenu
                             className={
                                 isActive ? "hamburger active" : "hamburger"
                             }
-                            onClick={handleClick}
                         />
-                    </a>
+                    </button>
                     <div
                         className={
                             isActive ? "menu-section active" : "menu-section"
                         }
                     >
-                        <a href="#">
-                            <ImCross className="cross" onClick={handleClick} />
-                        </a>
+                        <button
+                            type="button"
+                            className="icon-control"
+                            aria-label="Close menu"
+                            onClick={handleClick}
+                        >
+                            <ImCross className="cross" />
+                        </button>
                         <Link to="/" className="menu-link">
                             DOMŮ
                         </Link>
