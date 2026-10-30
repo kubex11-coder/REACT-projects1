@@ -1,0 +1,40 @@
+:root {
+    --title-white: #f4f1ff;
+    --title-gradient: linear-gradient(90deg, #7fb0ff 0%, #b78cff 50%, #ff7ad9 100%);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* overflow: hidden; */
+}
+
+.icon-control {
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    font: inherit;
+}
+
+/* TITULKY – společný styl pro nadpisy napříč webem:
+   <h1 className="title">Bílá část <span className="title-accent">Barevná část</span></h1> */
+.title {
+    font-family: "Anek Bangla", sans-serif;
+    font-size: clamp(1.9rem, 9vw, 7.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--title-white);
+    text-shadow: 0 0 40px rgba(183, 140, 255, 0.35);
+    filter: drop-shadow(0 6px 26px rgba(8, 4, 24, 0.6));
+}
+
+.title-accent {
+    background: var(--title-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+}
