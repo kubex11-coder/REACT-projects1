@@ -155,9 +155,22 @@ const Homepage = () => {
                     <h2 className="title hero-title">
                         <span className="title-accent">Weby</span>
                     </h2>
+                    <div className="spotlight spotlight-right" aria-hidden="true">
+                        <span className="spot-beam" />
+                        <span className="spot-lamp" />
+                    </div>
                 </div>
 
                 <div className={`hero${slide === 0 ? " is-active" : ""}`} id="home">
+
+                    <div className="spotlight spotlight-left" aria-hidden="true">
+                        <span className="spot-beam" />
+                        <span className="spot-lamp" />
+                    </div>
+                    <div className="spotlight spotlight-right" aria-hidden="true">
+                        <span className="spot-beam" />
+                        <span className="spot-lamp" />
+                    </div>
 
                     {codes.map((item) => (
                         <FallingCode key={item.code} {...item} />
@@ -185,6 +198,10 @@ const Homepage = () => {
                     <h2 className="title hero-title">
                         <span className="title-accent">Video</span>
                     </h2>
+                    <div className="spotlight spotlight-left" aria-hidden="true">
+                        <span className="spot-beam" />
+                        <span className="spot-lamp" />
+                    </div>
                 </div>
                 </motion.div>
 

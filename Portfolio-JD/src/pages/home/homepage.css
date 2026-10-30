@@ -4,7 +4,8 @@
     --muted: #a8abae;
     --blue: #1e3fd1;
     --purple: #a24be0;
-    --slide-bg: linear-gradient(180deg, #0b0a1a 0%, #151030 55%, #121012 100%);
+    /* dva stopy bez prostředního zlomu: žádná viditelná čára uprostřed při otáčení */
+    --slide-bg: linear-gradient(180deg, #0e0b22 0%, #121012 100%);
     --slide-radius: clamp(90px, 16vw, 260px);
 
     min-height: 200vh;
@@ -114,10 +115,12 @@ a {
     inset: -50%;
     z-index: -1;
     pointer-events: none;
+    /* ZAKOMENTOVÁNO: světelné bubliny kazí tranzici, zatím jen čistý gradient
     background:
         radial-gradient(30% 27.5% at 32.5% 30%, rgba(30, 63, 209, 0.45), transparent 70%),
         radial-gradient(27.5% 30% at 67.5% 40%, rgba(162, 75, 224, 0.42), transparent 70%),
         radial-gradient(35% 25% at 50% 75%, rgba(162, 75, 224, 0.25), transparent 70%);
+    */
 }
 
 .hero-track > .hero.is-active,
@@ -179,6 +182,68 @@ a {
     margin-bottom: -0.05em;
     text-align: center;
     white-space: nowrap;
+}
+
+/* SVĚTLA: dvě lampy v horních rozích hero, paprsky míří na postavu */
+.spotlight {
+    --beam-angle: 52deg;
+    --beam-len: 58vw;
+    --beam-w: 26vw;
+    position: absolute;
+    top: 16px;
+    width: 0;
+    height: 0;
+    z-index: 4;
+    pointer-events: none;
+    transform-origin: 0 0;
+}
+
+.spotlight-left { left: 3%; transform: rotate(calc(-1 * var(--beam-angle))); }
+.spotlight-right { right: 3%; transform: rotate(var(--beam-angle)); }
+
+.spot-lamp {
+    position: absolute;
+    left: -24px;
+    top: -16px;
+    width: 48px;
+    height: 32px;
+    border-radius: 8px 8px 16px 16px;
+    background: linear-gradient(#4a4378, #17142a);
+    box-shadow: 0 0 22px 6px rgba(130, 110, 220, 0.35);
+}
+
+.spot-lamp::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: -3px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(#e9e4ff, #9d8cf0 60%, transparent 100%);
+}
+
+.spot-beam {
+    position: absolute;
+    left: calc(var(--beam-w) / -2);
+    top: 14px;
+    width: var(--beam-w);
+    height: var(--beam-len);
+    clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+    background: linear-gradient(to bottom, rgba(120, 100, 210, 0.15), rgba(120, 100, 210, 0.045) 65%, transparent);
+    /* měkké boky paprsku */
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
+    mix-blend-mode: screen;
+    filter: blur(8px);
+    animation: beam-pulse 6s ease-in-out infinite;
+}
+
+.spotlight-right .spot-beam { animation-delay: -3s; }
+
+@keyframes beam-pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
 }
 
 /* FOTKA */
@@ -265,6 +330,7 @@ a {
 
     .hero { padding: 100px 4% 0; }
     .hero-photo { height: min(40vh, 340px); }
+    .spotlight { --beam-angle: 22deg; --beam-len: 62vh; --beam-w: 42vw; }
     .wrapper { min-height: 0; }
     .code-snippet { font-size: 0.85rem; }
 }
