@@ -2,8 +2,6 @@
     --title-white: #f4f1ff;
     /* původní návrh (pastelová modrá → fialová → růžová), pro případný návrat: --title-gradient: var(--title-gradient-original) */
     --title-gradient-original: linear-gradient(90deg, #7fb0ff 0%, #b78cff 50%, #ff7ad9 100%);
-    /* neonová varianta (zkoušená, nepoužito): sytá tyrkysová → fialová → horká růžová */
-    --title-gradient-neon: linear-gradient(90deg, #4df3ff 0%, #8f6bff 48%, #ff3fd0 100%);
     --title-gradient: var(--title-gradient-original);
 }
 

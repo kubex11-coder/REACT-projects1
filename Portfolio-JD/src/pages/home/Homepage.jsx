@@ -4,6 +4,7 @@ import Me from "../../images/herobanner-main-new-cutout.webp"
 import WebPhoto from "../../images/Herobanner-web.png"
 import VideoPhoto from "../../images/Herobanner-video.png"
 import LivingPortrait from "./LivingPortrait"
+import HeroCursor from "./HeroCursor"
 import { translations, LANGS, DEFAULT_LANG } from "./translations"
 import MainBase from "../../images/living/main-base.webp"
 import DroneImg from "../../images/Drone.png"
@@ -27,31 +28,88 @@ const LANE_START = 2
 const LANE_WIDTH = 88 / LANES
 const LANE_STEP = 3
 
-const FallingCode = ({ code, color, index }) => {
+// V okně padá najednou jen 2/3 kusů, zbytek čeká ve frontě a spadne později.
+// Mezi starty dvou kusů je navíc minimální odstup, aby nepadaly ve smršti.
+const MAX_ACTIVE_RATIO = 2 / 3
+const MIN_LAUNCH_GAP = 1800
+const fallQueue = { active: 0, waiting: [], lastLaunch: 0 }
+
+const acquireSlot = (maxActive) =>
+    new Promise((resolve) => {
+        fallQueue.waiting.push({ resolve, maxActive })
+        drainQueue()
+    })
+
+const releaseSlot = () => {
+    fallQueue.active -= 1
+    drainQueue()
+}
+
+const drainQueue = () => {
+    if (fallQueue.draining) return
+    fallQueue.draining = true
+    const next = () => {
+        const head = fallQueue.waiting[0]
+        if (!head) {
+            fallQueue.draining = false
+            return
+        }
+        if (fallQueue.active >= head.maxActive) {
+            fallQueue.draining = false
+            return
+        }
+        const wait = Math.max(0, fallQueue.lastLaunch + MIN_LAUNCH_GAP - Date.now())
+        setTimeout(() => {
+            const h = fallQueue.waiting[0]
+            if (!h || fallQueue.active >= h.maxActive) {
+                fallQueue.draining = false
+                return
+            }
+            fallQueue.waiting.shift()
+            fallQueue.active += 1
+            fallQueue.lastLaunch = Date.now()
+            h.resolve()
+            next()
+        }, wait)
+    }
+    next()
+}
+
+const FallingCode = ({ code, color, index, total }) => {
     const controls = useAnimation()
 
     useEffect(() => {
         let cancelled = false
 
         const fall = async () => {
-            // kusy startují rovnoměrně rozložené v čase
-            await sleep(index * 900)
+            const maxActive = Math.max(1, Math.floor(total * MAX_ACTIVE_RATIO))
             let cycle = 0
             while (!cancelled) {
+                // čeká na volné místo ve frontě (zároveň dává odstup mezi starty)
+                await acquireSlot(maxActive)
+                if (cancelled) {
+                    releaseSlot()
+                    return
+                }
                 const lane = (index * LANE_STEP + cycle * LANE_STEP) % LANES
                 const x = LANE_START + lane * LANE_WIDTH + rand(0, LANE_WIDTH * 0.4)
                 cycle += 1
                 controls.set({ x: `${x}vw`, y: "-10vh", opacity: 0 })
-                await controls.start({
-                    y: "110vh",
-                    opacity: [0, 0.35, 0.35, 0],
-                    transition: {
-                        duration: rand(7, 13),
-                        ease: "linear",
-                        times: [0, 0.12, 0.8, 1],
-                    },
-                })
-                await sleep(rand(0, 2) * 1000)
+                try {
+                    await controls.start({
+                        y: "110vh",
+                        opacity: [0, 0.35, 0.35, 0],
+                        transition: {
+                            duration: rand(7, 13),
+                            ease: "linear",
+                            times: [0, 0.12, 0.8, 1],
+                        },
+                    })
+                } finally {
+                    releaseSlot()
+                }
+                if (cancelled) return
+                await sleep(rand(1, 4) * 1000)
             }
         }
 
@@ -60,7 +118,7 @@ const FallingCode = ({ code, color, index }) => {
             cancelled = true
             controls.stop()
         }
-    }, [controls, index])
+    }, [controls, index, total])
 
     return (
         <motion.div
@@ -183,6 +241,7 @@ const codes = [
 
 const Homepage = () => {
     const [isActive, setIsActive] = useState(false)
+    const wrapperRef = useRef(null)
 
     // jazyk: čeština je výchozí, volba se pamatuje v prohlížeči
     const [lang, setLang] = useState(() => {
@@ -266,10 +325,13 @@ const Homepage = () => {
     return (
         <div className="homepage-wrapper">
             <div
+                ref={wrapperRef}
                 className="wrapper"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
             >
+                <HeroCursor targetRef={wrapperRef} />
+
                 <div className="navbar">
                     {/* vždy znovu načte úvodní stránku, i když na ní uživatel už je */}
                     <a
@@ -377,7 +439,7 @@ const Homepage = () => {
                     </div>
 
                     {codes.map((item, i) => (
-                        <FallingCode key={item.code} index={i} {...item} />
+                        <FallingCode key={item.code} index={i} total={codes.length} {...item} />
                     ))}
 
                     <h1 className="title hero-title">

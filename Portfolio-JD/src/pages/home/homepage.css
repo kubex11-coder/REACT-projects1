@@ -1166,21 +1166,21 @@ a {
 /* main: psaní, každá ruka má vlastní nepravidelný rytmus (levá: kladný úhel = prsty dolů, pravá: záporný) */
 @keyframes lp-hand-l {
     0%, 100% { transform: translateY(0) rotate(0); }
-    10% { transform: translateY(4.9%) rotate(1.82deg); }
+    10% { transform: translateY(2.45%) rotate(0.91deg); }
     22% { transform: translateY(0) rotate(0); }
-    40% { transform: translateY(3.5%) rotate(1.26deg); }
-    52% { transform: translateY(0.35%) rotate(0.14deg); }
-    72% { transform: translateY(5.6%) rotate(2.1deg); }
+    40% { transform: translateY(1.75%) rotate(0.63deg); }
+    52% { transform: translateY(0.175%) rotate(0.07deg); }
+    72% { transform: translateY(2.8%) rotate(1.05deg); }
     84% { transform: translateY(0) rotate(0); }
 }
 
 @keyframes lp-hand-r {
     0%, 100% { transform: translateY(0) rotate(0); }
-    14% { transform: translateY(4.2%) rotate(-1.68deg); }
+    14% { transform: translateY(2.1%) rotate(-0.84deg); }
     26% { transform: translateY(0) rotate(0); }
-    46% { transform: translateY(5.6%) rotate(-2.1deg); }
-    58% { transform: translateY(0.35%) rotate(-0.14deg); }
-    80% { transform: translateY(3.85%) rotate(-1.4deg); }
+    46% { transform: translateY(2.8%) rotate(-1.05deg); }
+    58% { transform: translateY(0.175%) rotate(-0.07deg); }
+    80% { transform: translateY(1.925%) rotate(-0.7deg); }
     92% { transform: translateY(0) rotate(0); }
 }
 
@@ -1196,23 +1196,23 @@ a {
 
 @keyframes lp-type-far {
     0%, 100% { transform: translateY(0) rotate(0); }
-    10% { transform: translateY(3%) rotate(0.7deg); }
+    10% { transform: translateY(1.5%) rotate(0.35deg); }
     22% { transform: translateY(0) rotate(0); }
-    48% { transform: translateY(2.2%) rotate(0.5deg); }
+    48% { transform: translateY(1.1%) rotate(0.25deg); }
     60% { transform: translateY(0) rotate(0); }
-    78% { transform: translateY(3.2%) rotate(0.8deg); }
-    88% { transform: translateY(0.4%) rotate(0.1deg); }
+    78% { transform: translateY(1.6%) rotate(0.4deg); }
+    88% { transform: translateY(0.2%) rotate(0.05deg); }
 }
 
 @keyframes lp-type-near {
     0%, 100% { transform: translateY(0) rotate(0); }
-    8% { transform: translateY(3.5%) rotate(0.9deg); }
+    8% { transform: translateY(1.75%) rotate(0.45deg); }
     18% { transform: translateY(0) rotate(0); }
-    34% { transform: translateY(2.5%) rotate(0.6deg); }
-    44% { transform: translateY(0.3%) rotate(0); }
-    66% { transform: translateY(3.8%) rotate(1deg); }
+    34% { transform: translateY(1.25%) rotate(0.3deg); }
+    44% { transform: translateY(0.15%) rotate(0); }
+    66% { transform: translateY(1.9%) rotate(0.5deg); }
     76% { transform: translateY(0) rotate(0); }
-    90% { transform: translateY(2%) rotate(0.5deg); }
+    90% { transform: translateY(1%) rotate(0.25deg); }
 }
 
 /* mimo scénu se nic nehýbe */
@@ -1299,4 +1299,71 @@ a {
     0% { opacity: 0; transform: translate(0, 0) scale(0.7); }
     25% { opacity: 0.55; }
     100% { opacity: 0; transform: translate(14%, -260%) scale(1.7); }
+}
+
+/* VLASTNÍ KURZOR HEROBANNERŮ (HeroCursor): jen myš, dotyk a reduced-motion ho nemají */
+.has-fx-cursor,
+.has-fx-cursor * {
+    cursor: none !important;
+}
+
+.fx-cursor {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.fx-cursor > span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.fx-cursor-trail {
+    margin: -3px 0 0 -3px;
+    transition: opacity 0.3s;
+}
+
+.fx-cursor-core {
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    background: #fff;
+    box-shadow: 0 0 8px #fff, 0 0 18px #a24be0, 0 0 34px rgba(162, 75, 224, 0.7);
+    transition: opacity 0.25s;
+}
+
+.fx-cursor-core.is-hot { background: #ff5c8a; box-shadow: 0 0 10px #ff5c8a, 0 0 24px #ff5c8a; }
+.fx-cursor-core.is-down { background: #6f8bff; }
+
+.fx-cursor-ring {
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 1.5px solid rgba(201, 166, 238, 0.85);
+    box-shadow: 0 0 14px rgba(162, 75, 224, 0.45), inset 0 0 10px rgba(162, 75, 224, 0.25);
+    transition: opacity 0.25s, width 0.25s, height 0.25s, margin 0.25s, border-color 0.25s;
+}
+
+.fx-cursor-ring.is-hot {
+    width: 54px;
+    height: 54px;
+    margin: -27px 0 0 -27px;
+    border-color: rgba(255, 92, 138, 0.9);
+    border-style: dashed;
+    animation: fx-cursor-spin 4s linear infinite;
+}
+
+.fx-cursor-ring.is-down {
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+}
+
+@keyframes fx-cursor-spin {
+    to { rotate: 360deg; }
 }
