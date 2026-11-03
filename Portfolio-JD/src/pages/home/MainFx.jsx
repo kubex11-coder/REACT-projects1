@@ -10,18 +10,18 @@ const MainFx = () => (
         {/* displeje: světelný pruh pomalu přejíždí shora dolů */}
         <div
             className="fx fx-screen"
-            style={{ clipPath: poly([[66, 296], [414, 342], [420, 560], [335, 575], [300, 470], [66, 455]]) }}
+            style={{ clipPath: poly([[72, 296], [432, 332], [436, 572], [335, 578], [302, 500], [300, 468], [72, 456]]) }}
         />
         <div
             className="fx fx-screen fx-screen-b"
-            style={{ clipPath: poly([[1125, 338], [1480, 290], [1484, 470], [1300, 490], [1270, 560], [1130, 590]]) }}
+            style={{ clipPath: poly([[1108, 338], [1482, 290], [1484, 460], [1330, 478], [1275, 540], [1265, 575], [1130, 590]]) }}
         />
 
         {/* svítící panel: teplé pulzování a záře kolem */}
         <div className="fx fx-halo" style={box(1040, 0, 420, 330)} />
         <div
             className="fx fx-lamp"
-            style={{ clipPath: poly([[1152, 132], [1326, 110], [1338, 196], [1166, 222]]) }}
+            style={{ clipPath: poly([[1146, 130], [1295, 108], [1318, 196], [1166, 224]]) }}
         />
 
         {/* RGB klávesnice: barevná vlna */}

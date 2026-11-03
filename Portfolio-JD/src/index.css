@@ -2,7 +2,14 @@
     --title-white: #f4f1ff;
     /* původní návrh (pastelová modrá → fialová → růžová), pro případný návrat: --title-gradient: var(--title-gradient-original) */
     --title-gradient-original: linear-gradient(90deg, #7fb0ff 0%, #b78cff 50%, #ff7ad9 100%);
-    --title-gradient: var(--title-gradient-original);
+    /* ladí k modrým ilustracím: azurová → fialová → růžová (původně --title-gradient-original) */
+    --title-gradient-cyan: linear-gradient(90deg, #6fd0ff 0%, #b08cff 50%, #ff7ad9 100%);
+    /* syté modré (předchozí varianta: --title-gradient-cyan) */
+    --title-gradient-blue: linear-gradient(90deg, #4aa3ff 0%, #2f6bff 50%, #5a4dff 100%);
+    /* syté modré + Electric Cyan na konci (předchozí varianta: --title-gradient-blue) */
+    --electric-cyan: #00e5ff;
+    --title-gradient-blue-cyan: linear-gradient(90deg, #2f6bff 0%, #4aa3ff 50%, #00e5ff 100%);
+    --title-gradient: var(--title-gradient-blue-cyan);
 }
 
 * {

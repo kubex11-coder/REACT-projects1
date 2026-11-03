@@ -5,6 +5,7 @@ import WebPhoto from "../../images/Herobanner-web.png"
 import VideoPhoto from "../../images/Herobanner-video.png"
 import LivingPortrait from "./LivingPortrait"
 import HeroCursor from "./HeroCursor"
+import HeroSideHud from "./HeroSideHud"
 import { translations, LANGS, DEFAULT_LANG } from "./translations"
 import MainBase from "../../images/living/main-base.webp"
 import DroneImg from "../../images/Drone.png"
@@ -195,7 +196,13 @@ const Drone = ({ active }) => {
                 initial={{ x: "-30vw" }}
                 animate={controls}
             >
-                <img src={DroneImg} alt="" className="drone-img" />
+                <div className="drone-img">
+                    <img src={DroneImg} alt="" />
+                    {/* točící se vrtule: průsvitné pruhy rotují nad rozmazanými disky z obrázku */}
+                    <span className="rotor" style={{ "--cx": "19%", "--cy": "31%", "--d": "33%", "--sq": 0.17, "--t": "0.32s" }} />
+                    <span className="rotor" style={{ "--cx": "71.5%", "--cy": "18%", "--d": "43%", "--sq": 0.18, "--t": "0.36s" }} />
+                    <span className="rotor" style={{ "--cx": "86%", "--cy": "40%", "--d": "26%", "--sq": 0.17, "--t": "0.3s" }} />
+                </div>
             </motion.div>
         </div>
     )
@@ -225,6 +232,54 @@ const BrowserWindow = () => (
     </motion.div>
 )
 
+// Číslo, které se při vjezdu do okna rozpočítá od nuly (se zpožděním, aby doběhlo
+// až po najetí boxu). Bez animací (reduced motion) rovnou ukáže konečnou hodnotu.
+const CountUp = ({ to, suffix = "", duration = 1800, delay = 400, className }) => {
+    const ref = useRef(null)
+    const [value, setValue] = useState(0)
+
+    useEffect(() => {
+        const el = ref.current
+        if (!el) return
+        const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        if (calm || !("IntersectionObserver" in window)) {
+            setValue(to)
+            return
+        }
+        let raf = 0
+        let timer = 0
+        const io = new IntersectionObserver(
+            ([entry]) => {
+                if (!entry.isIntersecting) return
+                io.disconnect()
+                timer = setTimeout(() => {
+                    const start = performance.now()
+                    const tick = (now) => {
+                        const k = Math.min(1, (now - start) / duration)
+                        setValue(Math.round(to * (1 - Math.pow(1 - k, 3))))
+                        if (k < 1) raf = requestAnimationFrame(tick)
+                    }
+                    raf = requestAnimationFrame(tick)
+                }, delay)
+            },
+            { threshold: 0.4 }
+        )
+        io.observe(el)
+        return () => {
+            io.disconnect()
+            clearTimeout(timer)
+            cancelAnimationFrame(raf)
+        }
+    }, [to, duration, delay])
+
+    return (
+        <span ref={ref} className={className}>
+            {value}
+            {suffix}
+        </span>
+    )
+}
+
 const codes = [
     { code: "<div/>", color: "#c9a6ee" },
     { code: "<br>", color: "#a24be0" },
@@ -242,6 +297,7 @@ const codes = [
 const Homepage = () => {
     const [isActive, setIsActive] = useState(false)
     const wrapperRef = useRef(null)
+    const rootRef = useRef(null)
 
     // jazyk: čeština je výchozí, volba se pamatuje v prohlížeči
     const [lang, setLang] = useState(() => {
@@ -314,6 +370,30 @@ const Homepage = () => {
     // po kliknutí na odkaz se mobilní menu zavře
     const closeMenu = () => setIsActive(false)
 
+    // obsah sekce O nás se odkryje, jakmile vjede do okna
+    useEffect(() => {
+        const root = rootRef.current
+        if (!root) return
+        const items = root.querySelectorAll(".reveal")
+        const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        if (calm || !("IntersectionObserver" in window)) {
+            items.forEach((el) => el.classList.add("is-in"))
+            return
+        }
+        const io = new IntersectionObserver(
+            (entries) =>
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        e.target.classList.add("is-in")
+                        io.unobserve(e.target)
+                    }
+                }),
+            { threshold: 0.2, rootMargin: "0px 0px -8% 0px" }
+        )
+        items.forEach((el) => io.observe(el))
+        return () => io.disconnect()
+    }, [])
+
     // otevřené mobilní menu zamkne scroll stránky pod ním
     useEffect(() => {
         document.body.style.overflow = isActive ? "hidden" : ""
@@ -323,7 +403,7 @@ const Homepage = () => {
     }, [isActive])
 
     return (
-        <div className="homepage-wrapper">
+        <div className="homepage-wrapper" ref={rootRef}>
             <div
                 ref={wrapperRef}
                 className="wrapper"
@@ -438,6 +518,8 @@ const Homepage = () => {
                         <span className="spot-lamp" />
                     </div>
 
+                    <HeroSideHud active={slide === 0} />
+
                     {codes.map((item, i) => (
                         <FallingCode key={item.code} index={i} total={codes.length} {...item} />
                     ))}
@@ -529,32 +611,32 @@ const Homepage = () => {
             <section className="about" id="o-nas">
                 <div className="about-inner">
                     <div className="about-text">
-                        <p className="about-eyebrow">{t.about.eyebrow}</p>
-                        <h2 className="title about-title">
+                        <p className="about-eyebrow reveal">{t.about.eyebrow}</p>
+                        <h2 className="title about-title reveal" style={{ "--d": "0.1s" }}>
                             {t.about.title}<span className="title-accent">{t.about.titleAccent}</span>
                         </h2>
-                        <p className="about-paragraph">{t.about.p1}</p>
-                        <p className="about-paragraph">{t.about.p2}</p>
-                        <a href="#kontakty" className="side-btn about-btn">{t.about.cta}</a>
+                        <p className="about-paragraph reveal" style={{ "--d": "0.2s" }}>{t.about.p1}</p>
+                        <p className="about-paragraph reveal" style={{ "--d": "0.3s" }}>{t.about.p2}</p>
+                        <a href="#kontakty" className="side-btn about-btn reveal" style={{ "--d": "0.4s" }}>{t.about.cta}</a>
                     </div>
 
                     <div className="about-stats">
-                        <div className="about-stat">
-                            <span className="about-stat-num">10+</span>
+                        <div className="about-stat reveal reveal-right" style={{ "--d": "0.20s" }}>
+                            <CountUp className="about-stat-num" to={10} suffix="+" delay={400} />
                             <span className="about-stat-label">{t.about.stat1}</span>
                         </div>
-                        <div className="about-stat">
-                            <span className="about-stat-num">50+</span>
+                        <div className="about-stat reveal reveal-right" style={{ "--d": "0.35s" }}>
+                            <CountUp className="about-stat-num" to={50} suffix="+" delay={550} />
                             <span className="about-stat-label">{t.about.stat2}</span>
                         </div>
-                        <div className="about-stat">
-                            <span className="about-stat-num">30+</span>
+                        <div className="about-stat reveal reveal-right" style={{ "--d": "0.50s" }}>
+                            <CountUp className="about-stat-num" to={30} suffix="+" delay={700} />
                             <span className="about-stat-label">{t.about.stat3}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="about-social">
+                <div className="about-social reveal" style={{ "--d": "0.2s" }}>
                     <a href="#home">Facebook</a>
                     <a href="#home">YouTube</a>
                     <a href="#home">Instagram</a>
