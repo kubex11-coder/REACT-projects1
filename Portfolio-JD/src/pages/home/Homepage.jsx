@@ -1,10 +1,19 @@
 import React from "react"
 import "./homepage.css"
-import Me from "../../images/herobanner-main-photo.png"
+import Me from "../../images/herobanner-main-new-cutout.webp"
+import WebPhoto from "../../images/Herobanner-web.png"
+import VideoPhoto from "../../images/Herobanner-video.png"
+import LivingPortrait from "./LivingPortrait"
+import { translations, LANGS, DEFAULT_LANG } from "./translations"
+import MainBase from "../../images/living/main-base.webp"
+import DroneImg from "../../images/Drone.png"
 import { motion, useAnimation } from "framer-motion"
 import { GiHamburgerMenu } from "react-icons/gi"
 import { ImCross } from "react-icons/im"
 import { useEffect, useRef, useState } from "react"
+
+// false = původní obrázky beze změny (vypne mikroanimace postav)
+const ANIMATE_PORTRAITS = true
 
 const rand = (min, max) => min + Math.random() * (max - min)
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -66,6 +75,98 @@ const FallingCode = ({ code, color, index }) => {
     )
 }
 
+// Dron přeletí zpoza levého okraje za pravý, po 1 s pauze znovu z jiné výšky.
+// Létá jen dokud je video slide na scéně.
+const Drone = ({ active }) => {
+    const controls = useAnimation()
+    const [top, setTop] = useState(25)
+
+    useEffect(() => {
+        if (!active) return
+        let cancelled = false
+
+        const fly = async () => {
+            while (!cancelled) {
+                // šikmý let po sinusoidě: lineární sklon z y0 do y1 + vlna;
+                // dron zůstává vodorovně (bez naklánění)
+                const y0 = rand(-12, 12)
+                const y1 = rand(-12, 12) + (y0 > 0 ? -12 : 12)
+                // na mobilu mírnější vlna: nižší amplituda a méně, širších oblouků
+                const mobile = window.innerWidth <= 700
+                const amp = mobile ? rand(3, 5) : rand(7, 11) // vh
+                const waves = mobile ? rand(1, 1.5) : rand(1.5, 2.5)
+                const phase = rand(0, Math.PI * 2)
+                const duration = rand(8, 12)
+
+                const steps = 24
+                const times = []
+                const ys = []
+                const yAt = (t) => y0 + (y1 - y0) * t + amp * Math.sin(phase + waves * 2 * Math.PI * t)
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps
+                    times.push(t)
+                    ys.push(`${yAt(t)}vh`)
+                }
+
+                setTop(rand(30, 45))
+                controls.set({ x: "-30vw", y: ys[0] })
+                await controls.start({
+                    x: "130vw",
+                    y: ys,
+                    transition: {
+                        x: { duration, ease: "linear" },
+                        y: { duration, ease: "linear", times },
+                    },
+                })
+                await sleep(1000)
+            }
+        }
+
+        fly()
+        return () => {
+            cancelled = true
+            controls.stop()
+        }
+    }, [active, controls])
+
+    return (
+        <div className="drone-layer" aria-hidden="true">
+            <motion.div
+                className="drone"
+                style={{ top: `${top}%` }}
+                initial={{ x: "-30vw" }}
+                animate={controls}
+            >
+                <img src={DroneImg} alt="" className="drone-img" />
+            </motion.div>
+        </div>
+    )
+}
+
+// Vznášející se okno prohlížeče s "psaným" kódem na slidu Weby
+const BrowserWindow = () => (
+    <motion.div
+        className="browser-window"
+        aria-hidden="true"
+        animate={{ y: [0, -14, 0], rotate: [-2, 1.5, -2] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+    >
+        <div className="bw-bar">
+            <span className="bw-dot" />
+            <span className="bw-dot" />
+            <span className="bw-dot" />
+            <span className="bw-url" />
+        </div>
+        <div className="bw-body">
+            <span className="bw-line bw-line-1" />
+            <span className="bw-line bw-line-2" />
+            <span className="bw-line bw-line-3" />
+            <span className="bw-line bw-line-4" />
+            <span className="bw-block" />
+        </div>
+    </motion.div>
+)
+
 const codes = [
     { code: "<div/>", color: "#c9a6ee" },
     { code: "<br>", color: "#a24be0" },
@@ -79,12 +180,30 @@ const codes = [
     { code: "=> {}", color: "#c9a6ee" },
 ]
 
-const SLIDE_NAMES = { "-1": "Weby a aplikace", 1: "Video tvorba" }
-// krátké názvy pro svislé jazýčky na mobilu
-const SLIDE_SHORT = { "-1": "WEBY", 1: "VIDEA" }
 
 const Homepage = () => {
     const [isActive, setIsActive] = useState(false)
+
+    // jazyk: čeština je výchozí, volba se pamatuje v prohlížeči
+    const [lang, setLang] = useState(() => {
+        try {
+            const saved = localStorage.getItem("lang")
+            return LANGS.includes(saved) ? saved : DEFAULT_LANG
+        } catch {
+            return DEFAULT_LANG
+        }
+    })
+    const t = translations[lang]
+    const SLIDE_NAMES = { "-1": t.slides.webName, 1: t.slides.videoName }
+    // krátké názvy pro svislé jazýčky na mobilu
+    const SLIDE_SHORT = { "-1": t.slides.webShort, 1: t.slides.videoShort }
+
+    useEffect(() => {
+        document.documentElement.lang = lang
+        try {
+            localStorage.setItem("lang", lang)
+        } catch {}
+    }, [lang])
     // -1 = levá sekce, 0 = hero, 1 = pravá sekce
     const [slide, setSlide] = useState(0)
 
@@ -124,9 +243,25 @@ const Homepage = () => {
         dir: target > slide ? "right" : "left",
     }))
 
+    // animace menu se zapne až po prvním kliknutí; při načtení nebo přepnutí do mobilního
+    // zobrazení (např. v inspectoru) se menu nikdy neukáže ani nezajíždí
+    const [menuUsed, setMenuUsed] = useState(false)
+
     const handleClick = () => {
+        setMenuUsed(true)
         setIsActive(!isActive)
     }
+
+    // po kliknutí na odkaz se mobilní menu zavře
+    const closeMenu = () => setIsActive(false)
+
+    // otevřené mobilní menu zamkne scroll stránky pod ním
+    useEffect(() => {
+        document.body.style.overflow = isActive ? "hidden" : ""
+        return () => {
+            document.body.style.overflow = ""
+        }
+    }, [isActive])
 
     return (
         <div className="homepage-wrapper">
@@ -150,7 +285,7 @@ const Homepage = () => {
                     <button
                         type="button"
                         className="icon-control"
-                        aria-label="Open menu"
+                        aria-label={t.menu.open}
                         onClick={handleClick}
                     >
                         <GiHamburgerMenu
@@ -161,30 +296,44 @@ const Homepage = () => {
                     </button>
                     <div
                         className={
-                            isActive ? "menu-section active" : "menu-section"
+                            `menu-section${isActive ? " active" : ""}${menuUsed ? " used" : ""}`
                         }
                     >
                         <button
                             type="button"
                             className="icon-control close-btn"
-                            aria-label="Close menu"
+                            aria-label={t.menu.close}
                             onClick={handleClick}
                         >
                             <ImCross className="cross" />
                         </button>
 
-                        <a href="#home" className="menu-link current">
-                            Domů
+                        <a href="#home" className="menu-link current" onClick={closeMenu}>
+                            {t.nav.home}
                         </a>
-                        <a href="#o-nas" className="menu-link">
-                            O mně
+                        <a href="#o-nas" className="menu-link" onClick={closeMenu}>
+                            {t.nav.about}
                         </a>
-                        <a href="#portfolio" className="menu-link">
-                            Portfolio
+                        <a href="#portfolio" className="menu-link" onClick={closeMenu}>
+                            {t.nav.portfolio}
                         </a>
-                        <a href="#kontakty" className="menu-link">
-                            Kontakt
+                        <a href="#kontakty" className="menu-link" onClick={closeMenu}>
+                            {t.nav.contact}
                         </a>
+
+                        <div className="lang-switch" role="group" aria-label={t.menu.language}>
+                            {LANGS.map((l) => (
+                                <button
+                                    key={l}
+                                    type="button"
+                                    className={`lang-btn${lang === l ? " is-active" : ""}`}
+                                    aria-pressed={lang === l}
+                                    onClick={() => setLang(l)}
+                                >
+                                    {l.toUpperCase()}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -196,11 +345,12 @@ const Homepage = () => {
                 >
                 <div className={`side-section side-left${slide === -1 ? " is-active" : ""}`} aria-hidden={slide !== -1}>
                     <h2 className="title hero-title">
-                        <span className="title-accent">Weby</span>
+                        <span className="title-accent">{t.slides.webTitle}</span>
                     </h2>
+                    <BrowserWindow />
                     {/* fotka je v kuželu světla vpravo, text vlevo */}
                     <div className="side-photo side-photo-right">
-                        <img src={Me} alt="" aria-hidden="true" className="photo" />
+                        <LivingPortrait variant="web" src={WebPhoto} className="photo-flip photo-drop-web" animated={ANIMATE_PORTRAITS} />
                     </div>
                     <div className="side-text side-text-left">
                         <h2 className="side-heading">Lorem ipsum dolor</h2>
@@ -208,6 +358,7 @@ const Homepage = () => {
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                             incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
                         </p>
+                        <button type="button" className="side-btn">{t.slides.moreBtn}</button>
                     </div>
                     <div className="spotlight spotlight-right" aria-hidden="true">
                         <span className="spot-beam" />
@@ -232,31 +383,25 @@ const Homepage = () => {
                     <h1 className="title hero-title">
                         Kubex <span className="title-accent">Designs</span>
                     </h1>
-                    <h2 className="hero-subtitle">Tvořím weby, aplikace a videa</h2>
+                    <h2 className="hero-subtitle">{t.hero.subtitle}</h2>
 
-                    <motion.div
-                        className="hero-photo"
-                        animate={{ scale: 1.03 }}
-                        transition={{
-                            duration: 10,
-                            repeat: Infinity,
-                            repeatType: "mirror",
-                        }}
-                    >
+                    <div className="hero-photo">
                         {/* tmavá silueta pod fotkou: zakryje padající kód všude, kde je postava */}
-                        <img src={Me} alt="" aria-hidden="true" className="photo photo-silhouette" />
-                        <img src={Me} alt="Jakub programuje v kyberpunkové pracovně" className="photo" />
-                    </motion.div>
+                        {/* silueta z podkladu bez dronu a hlavy: na místě, kde dron byl, nezůstane černý stín */}
+                        <img src={ANIMATE_PORTRAITS ? MainBase : Me} alt="" aria-hidden="true" className="photo photo-silhouette photo-drop-main photo-nomask" />
+                        <LivingPortrait variant="main" src={Me} alt={t.hero.alt} className="photo-drop-main photo-nomask" animated={ANIMATE_PORTRAITS} />
+                    </div>
 
                 </div>
 
                 <div className={`side-section side-right${slide === 1 ? " is-active" : ""}`} aria-hidden={slide !== 1}>
                     <h2 className="title hero-title">
-                        <span className="title-accent">Video</span>
+                        <span className="title-accent">{t.slides.videoTitle}</span>
                     </h2>
+                    <Drone active={slide === 1} />
                     {/* fotka je v kuželu světla vlevo, text vpravo */}
                     <div className="side-photo side-photo-left">
-                        <img src={Me} alt="" aria-hidden="true" className="photo" />
+                        <LivingPortrait variant="video" src={VideoPhoto} className="photo-drop-video" animated={ANIMATE_PORTRAITS} />
                     </div>
                     <div className="side-text side-text-right">
                         <h2 className="side-heading">Lorem ipsum dolor</h2>
@@ -264,6 +409,7 @@ const Homepage = () => {
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
                             incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
                         </p>
+                        <button type="button" className="side-btn">{t.slides.moreBtn}</button>
                     </div>
                     <div className="spotlight spotlight-left" aria-hidden="true">
                         <span className="spot-beam" />
@@ -286,12 +432,12 @@ const Homepage = () => {
                         key={target}
                         type="button"
                         className={`arrow arrow-${dir}${slide === 0 ? " arrow-hero" : ""}`}
-                        aria-label={target === 0 ? "Zpět na úvod" : SLIDE_NAMES[target]}
+                        aria-label={target === 0 ? t.slides.backLong : SLIDE_NAMES[target]}
                         onClick={() => setSlide(target)}
                     >
                         <span className="arrow-label">
-                            <span className="arrow-full">{target === 0 ? "Zpět" : SLIDE_NAMES[target]}</span>
-                            <span className="arrow-short" aria-hidden="true">{target === 0 ? "ZPĚT" : SLIDE_SHORT[target]}</span>
+                            <span className="arrow-full">{target === 0 ? t.slides.back : SLIDE_NAMES[target]}</span>
+                            <span className="arrow-short" aria-hidden="true">{target === 0 ? t.slides.back.toUpperCase() : SLIDE_SHORT[target]}</span>
                         </span>
                     </button>
                 ))}
@@ -299,26 +445,59 @@ const Homepage = () => {
                 {showHint && slide === 0 && (
                     <div className="swipe-hint" aria-hidden="true">
                         <span className="hint-chev hint-chev-left">‹</span>
-                        <span>Přejeď prstem</span>
+                        <span>{t.slides.hint}</span>
                         <span className="hint-chev hint-chev-right">›</span>
                     </div>
                 )}
 
-                <div className="slide-dots" role="tablist" aria-label="Přepínání bannerů">
+                <div className="slide-dots" role="tablist" aria-label={t.slides.dots}>
                     {[-1, 0, 1].map((i) => (
                         <button
                             key={i}
                             type="button"
                             role="tab"
                             aria-selected={slide === i}
-                            aria-label={i === -1 ? "Weby a aplikace" : i === 0 ? "Úvod" : "Video tvorba"}
+                            aria-label={i === -1 ? t.slides.webName : i === 0 ? t.slides.intro : t.slides.videoName}
                             className={`slide-dot${slide === i ? " is-active" : ""}`}
                             onClick={() => setSlide(i)}
                         />
                     ))}
                 </div>
             </div>
-            <div className="body-sekce">další sekce</div>
+            <section className="about" id="o-nas">
+                <div className="about-inner">
+                    <div className="about-text">
+                        <p className="about-eyebrow">{t.about.eyebrow}</p>
+                        <h2 className="title about-title">
+                            {t.about.title}<span className="title-accent">{t.about.titleAccent}</span>
+                        </h2>
+                        <p className="about-paragraph">{t.about.p1}</p>
+                        <p className="about-paragraph">{t.about.p2}</p>
+                        <a href="#kontakty" className="side-btn about-btn">{t.about.cta}</a>
+                    </div>
+
+                    <div className="about-stats">
+                        <div className="about-stat">
+                            <span className="about-stat-num">10+</span>
+                            <span className="about-stat-label">{t.about.stat1}</span>
+                        </div>
+                        <div className="about-stat">
+                            <span className="about-stat-num">50+</span>
+                            <span className="about-stat-label">{t.about.stat2}</span>
+                        </div>
+                        <div className="about-stat">
+                            <span className="about-stat-num">30+</span>
+                            <span className="about-stat-label">{t.about.stat3}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="about-social">
+                    <a href="#home">Facebook</a>
+                    <a href="#home">YouTube</a>
+                    <a href="#home">Instagram</a>
+                </div>
+            </section>
             <div className="footer">footer</div>
         </div>
     )
