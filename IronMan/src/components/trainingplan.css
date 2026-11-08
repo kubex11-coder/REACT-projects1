@@ -1,0 +1,638 @@
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.month__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.month__title {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.month__desc {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.edit {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.edit__input {
+  min-width: 200px;
+  padding: 6px 10px;
+  font: inherit;
+  color: #fff;
+  background: #000;
+  border: 1px solid #2f80ff;
+  border-radius: 8px;
+  outline: none;
+}
+
+.edit__placeholder {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.week {
+  scroll-margin-top: 90px;
+}
+
+.week__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 12px;
+}
+
+.week__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.week__volume {
+  font-size: 0.9rem;
+  color: #2f80ff;
+}
+
+.week__days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  background: #0d0d12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.day--today {
+  box-shadow: 0 0 0 1px #2f80ff;
+}
+
+.day--yes {
+  background: rgba(34, 197, 94, 0.14);
+  border-color: #22c55e;
+}
+
+.day--no {
+  background: rgba(248, 113, 113, 0.14);
+  border-color: #f87171;
+}
+
+.day__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.day__name {
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.day__date {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.day__date-input {
+  min-width: 0;
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #fff;
+  color-scheme: dark;
+  background: #000;
+  border: 1px solid #2f80ff;
+  border-radius: 6px;
+  outline: none;
+}
+
+.day__tools {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.day__icon {
+  padding: 6px;
+  color: rgba(255, 255, 255, 0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.day__icon:hover {
+  color: #2f80ff;
+}
+
+.day__section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day__section--status {
+  margin-top: auto;
+}
+
+.day__label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Popis tréninku je nejvýraznější prvek karty; poznámka je menší. */
+.day__text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.day__text--note {
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Ano / Ne: velká dotyková tlačítka (zaškrtávátka zůstávají pro přístupnost). */
+.day__choices {
+  display: flex;
+  gap: 10px;
+}
+
+.day__choice {
+  position: relative;
+  flex: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.day__choice-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.day__choice-box {
+  --choice-color: #22c55e;
+  --choice-ink: #052e16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.day__choice:hover .day__choice-box {
+  border-color: var(--choice-color);
+  color: var(--choice-color);
+}
+
+.day__choice--no .day__choice-box {
+  --choice-color: #f87171;
+  --choice-ink: #450a0a;
+}
+
+.day__choice-input:checked + .day__choice-box,
+.day__choice:hover .day__choice-input:checked + .day__choice-box {
+  color: var(--choice-ink);
+  background: var(--choice-color);
+  border-color: var(--choice-color);
+}
+
+.day__choice-input:active + .day__choice-box {
+  transform: scale(0.97);
+}
+
+.day__choice-input:focus-visible + .day__choice-box {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Mobil: výrazná dotyková tlačítka a vycentrovaná karta. */
+@media (max-width: 700px) {
+  .day {
+    gap: 16px;
+    padding: 18px 16px;
+  }
+
+  .day__grip {
+    display: none;
+  }
+
+  .day__head {
+    position: relative;
+    justify-content: center;
+    gap: 8px;
+    font-size: 1rem;
+  }
+
+  .day__tools {
+    position: absolute;
+    top: 50%;
+    right: -6px;
+    margin-left: 0;
+    transform: translateY(-50%);
+  }
+
+  .day__section {
+    align-items: center;
+    text-align: center;
+  }
+
+  .day__text {
+    font-size: 1.5rem;
+  }
+
+  .day__input {
+    width: 100%;
+    text-align: left;
+  }
+
+  .day__actions {
+    justify-content: center;
+  }
+
+  .day__choices {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .day__choice-box {
+    min-height: 56px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--choice-color);
+    border: 2px solid var(--choice-color);
+    border-radius: 12px;
+  }
+}
+
+/* Decentní hover karet (jen kde je myš, ať se na dotyku nezasekne). */
+.day {
+  transition: background 0.2s, border-color 0.2s, transform 0.2s, filter 0.2s;
+}
+
+@media (hover: hover) {
+  .day:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .day--yes:hover {
+    border-color: #22c55e;
+  }
+
+  .day--no:hover {
+    border-color: #f87171;
+  }
+}
+
+.day__input {
+  padding: 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: #fff;
+  background: #000;
+  border: 1px solid #2f80ff;
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+}
+
+.day__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.day__btn {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.day__btn--primary {
+  background: #2f80ff;
+  border-color: #2f80ff;
+}
+
+/* Přidávání a přetahování bloků a týdnů */
+.week-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.week {
+  padding: 4px;
+  border-radius: 14px;
+}
+
+.week--drop-before {
+  box-shadow: 0 -3px 0 #2f80ff;
+}
+
+.week--drop-after {
+  box-shadow: 0 3px 0 #2f80ff;
+}
+
+.week--drop-end,
+.month--drop {
+  outline: 2px dashed #2f80ff;
+  outline-offset: 2px;
+}
+
+.is-dragging {
+  opacity: 0.4;
+}
+
+.week__grip,
+.day__grip {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.week__grip {
+  display: inline-flex;
+  margin-right: 6px;
+  vertical-align: middle;
+  cursor: grab;
+}
+
+.week__grip:hover {
+  color: #2f80ff;
+}
+
+.day {
+  cursor: grab;
+}
+
+.day--drop-before {
+  box-shadow: -4px 0 0 #2f80ff;
+}
+
+.day--drop-after {
+  box-shadow: 4px 0 0 #2f80ff;
+}
+
+.day__icon--danger:hover {
+  color: #f87171;
+}
+
+.add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: inherit;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.add:hover {
+  color: #2f80ff;
+  border-color: #2f80ff;
+}
+
+.add--block {
+  min-height: 150px;
+}
+
+.add--week {
+  padding: 8px;
+}
+
+/* Mobil: týdny i bloky pod sebou, nic nepřetéká do šířky */
+.edit__input {
+  min-width: 0;
+  flex: 1 1 140px;
+}
+
+@media (max-width: 700px) {
+  .week__days {
+    grid-template-columns: 1fr;
+  }
+
+  .add--block {
+    min-height: 56px;
+  }
+
+  .month__title {
+    font-size: 1.3rem;
+  }
+}
+
+.week__dates {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+/* Mobil: větší rozestupy karet, decentní zvýraznění okrajů, menší texty. */
+@media (max-width: 700px) {
+  .week__days {
+    gap: 22px;
+  }
+
+  .day {
+    position: relative;
+  }
+
+  .day::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+
+  .day__head {
+    font-size: 0.9rem;
+  }
+
+  .day__label {
+    font-size: 0.65rem;
+  }
+
+  .day__text {
+    font-size: 1.25rem;
+  }
+
+  .day__text--note {
+    font-size: 0.85rem;
+  }
+
+  .day__choice-box {
+    min-height: 52px;
+    font-size: 1rem;
+  }
+
+  .day__btn,
+  .day__input {
+    font-size: 0.85rem;
+  }
+
+  .week__dates {
+    font-size: 1.15rem;
+  }
+
+  .week__title {
+    font-size: 1rem;
+  }
+
+  .week__volume {
+    font-size: 0.85rem;
+  }
+
+  .month__title {
+    font-size: 1.2rem;
+  }
+}
+
+/* Vzdušnější karty: víc místa mezi texty, i za cenu vyšší karty. */
+.day {
+  gap: 22px;
+  padding: 18px;
+}
+
+.day__section {
+  gap: 8px;
+}
+
+.day__text {
+  line-height: 1.35;
+}
+
+.day__text--note {
+  line-height: 1.55;
+}
+
+.day__section--status {
+  padding-top: 6px;
+}
+
+@media (max-width: 700px) {
+  .day {
+    gap: 28px;
+    padding: 24px 18px;
+  }
+
+  .day__section {
+    gap: 10px;
+  }
+
+  .day__text {
+    line-height: 1.4;
+  }
+
+  .day__section--status {
+    padding-top: 10px;
+  }
+}
+
+/* Mobil: hlavička týdne je vycentrovaná a při scrollu zůstává přilepená pod
+   navigací, dokud týden neskončí; pak ji převezme hlavička dalšího týdne. */
+@media (max-width: 700px) {
+  .week__head {
+    position: sticky;
+    top: 73px;
+    z-index: 5;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin: 0 -4px 16px;
+    padding: 10px 40px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .week__head > .day__icon {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+  }
+
+  .week__grip {
+    display: none;
+  }
+
+  .week__title {
+    text-align: center;
+  }
+
+  .week__title .edit,
+  .week__volume .edit {
+    justify-content: center;
+  }
+}
+
+/* Nadpisy měsíců a týdnů a popis tréninku ve světle modré (místo bílé). */
+.month__title,
+.week__title,
+.day__text {
+  color: #8fc3ff;
+}
+
+.day__text--note {
+  color: rgba(255, 255, 255, 0.75);
+}

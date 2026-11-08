@@ -1,0 +1,29 @@
+.db-error {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: #fff;
+  background: #7f1d1d;
+  border: 1px solid #ef4444;
+  border-radius: 12px;
+}
+
+.db-error button {
+  padding: 4px 12px;
+  font: inherit;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  cursor: pointer;
+}

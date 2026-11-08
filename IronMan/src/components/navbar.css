@@ -1,0 +1,205 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 6px clamp(16px, 4vw, 48px);
+  background: rgba(11, 11, 15, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.navbar__logo {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #fff;
+  text-decoration: none;
+}
+
+.navbar__logo span {
+  color: #2f80ff;
+}
+
+/* Sloupce zadané výslovně, aby chybějící skóre (odhlášený) neposunulo tlačítko. */
+.navbar__logo {
+  grid-column: 1;
+  justify-self: start;
+}
+
+/* Skóre plnění: kruhový ukazatel, barva podle hodnoty (--score-color). */
+.navbar__score {
+  --score-color: #22c55e;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar__score--mid {
+  --score-color: #f59e0b;
+}
+
+.navbar__score--bad {
+  --score-color: #ef4444;
+}
+
+.navbar__score--none {
+  --score-color: #8a8a94;
+}
+
+.navbar__score--none .navbar__ring {
+  filter: none;
+}
+
+.navbar__ring {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  filter: drop-shadow(0 0 8px var(--score-color));
+}
+
+.navbar__ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.navbar__ring circle {
+  fill: none;
+  stroke-width: 4;
+}
+
+.navbar__ring-bg {
+  stroke: rgba(255, 255, 255, 0.1);
+}
+
+.navbar__ring-fill {
+  stroke: var(--score-color);
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.5s, stroke 0.3s;
+}
+
+.navbar__score-value {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: 4px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--score-color);
+}
+
+.navbar__score-value small {
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.navbar__score-label {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--score-color);
+}
+
+.navbar__alert {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #ef4444;
+  text-shadow: 0 0 10px #ef4444;
+  animation: alert-pulse 1s ease-in-out infinite;
+}
+
+@keyframes alert-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar__alert {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar__score-label {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .navbar__alert {
+    display: none;
+  }
+}
+
+.navbar__score {
+  grid-column: 2;
+}
+
+.navbar__user,
+.navbar__login {
+  grid-column: 3;
+  justify-self: end;
+}
+
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Mobil: přihlášený vidí místo loga vlevo skóre a vpravo tlačítko odhlášení. */
+@media (max-width: 700px) {
+  .navbar {
+    grid-template-columns: 1fr auto;
+  }
+
+  .navbar__email {
+    display: none;
+  }
+
+  .navbar--auth .navbar__logo {
+    display: none;
+  }
+
+  .navbar__score {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .navbar__user,
+  .navbar__login {
+    grid-column: 2;
+  }
+}
+
+.navbar__email {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.navbar__login {
+  padding: 10px 22px;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.navbar__login:hover {
+  background: #2f80ff;
+  border-color: #2f80ff;
+}

@@ -1,0 +1,12 @@
+.section {
+  min-height: calc(100vh - 73px);
+  padding: clamp(16px, 4vw, 48px);
+  background: #000;
+}
+
+.section__title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  margin-bottom: 24px;
+}
