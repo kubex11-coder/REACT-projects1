@@ -450,7 +450,7 @@
 }
 
 .add--block {
-  min-height: 150px;
+  min-height: 75px;
 }
 
 .add--week {
@@ -469,7 +469,7 @@
   }
 
   .add--block {
-    min-height: 56px;
+    min-height: 28px;
   }
 
   .month__title {
@@ -480,6 +480,47 @@
 .week__dates {
   font-size: 1.4rem;
   font-weight: 800;
+}
+
+/* Kilometry: součty za týden a měsíc, zadání u bloku */
+.week__km,
+.month__km {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+/* Naběhnuto i Splněno se tlačí ke dnu karty, aby byly na všech kartách v řadě v rovině. */
+.day__section--km {
+  margin-top: auto;
+}
+
+.day__section--km + .day__section--status {
+  margin-top: 0;
+}
+
+.day__km {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.day__km-input {
+  width: 80px;
+  padding: 6px 8px;
+  font: inherit;
+  font-weight: 700;
+  color: #fff;
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  outline: none;
+}
+
+.day__km-input:focus {
+  border-color: #2f80ff;
 }
 
 /* Mobil: větší rozestupy karet, decentní zvýraznění okrajů, menší texty. */

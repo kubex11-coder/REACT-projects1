@@ -34,10 +34,54 @@ function formatDate(date) {
   return `${date.getDate()}. ${date.getMonth() + 1}.`;
 }
 
+function formatKm(total) {
+  return `${Math.round(total * 100) / 100} km`.replace(".", ",");
+}
+
+// Kilometry jsou v databázi číslo; v poli se zobrazují s čárkou a zadat jde čárka i tečka.
+function KmInput({ value, onSave }) {
+  const shown = value == null ? "" : String(value).replace(".", ",");
+  const [draft, setDraft] = useState(shown);
+  useEffect(() => setDraft(shown), [shown]);
+
+  const commit = () => {
+    const clean = draft.trim();
+    if (!clean) {
+      if (value != null) onSave(null);
+      return;
+    }
+    const n = parseFloat(clean.replace(",", "."));
+    // Neplatná hodnota se vrátí na uloženou.
+    if (!Number.isFinite(n) || n < 0) setDraft(shown);
+    else if (n !== value) onSave(n);
+  };
+
+  return (
+    <div className="day__section day__section--km">
+      <span className="day__label">Naběhnuto</span>
+      <label className="day__km">
+        <input
+          type="text"
+          inputMode="decimal"
+          className="day__km-input"
+          placeholder="0"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+        />
+        km
+      </label>
+    </div>
+  );
+}
+
 function Day({
   block,
   date,
   entry,
+  km,
+  onKmChange,
   isToday,
   onChange,
   onDateChange,
@@ -156,6 +200,8 @@ function Day({
         )}
       </div>
 
+      {!editing && onKmChange && <KmInput value={km} onSave={onKmChange} />}
+
       {editing ? (
         <div className="day__actions">
           <button type="button" className="day__btn day__btn--primary" onClick={save}>
@@ -198,7 +244,7 @@ function Day({
   );
 }
 
-function TrainingPlan({ planId, startDate, weeks }) {
+function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
   const [stored, updateDay] = usePlan(planId);
   const [meta, updateMeta] = usePlanMeta(planId);
   const loaded = usePlansLoaded();
@@ -224,6 +270,9 @@ function TrainingPlan({ planId, startDate, weeks }) {
 
   const blockDate = (block) =>
     parseIso(meta[`date:${block.id}`]) || parseIso(block.date);
+
+  const sumKm = (blocks) =>
+    blocks.reduce((sum, block) => sum + (stored[block.id]?.km ?? 0), 0);
 
   const endDrag = () => {
     setDrag(null);
@@ -376,6 +425,11 @@ function TrainingPlan({ planId, startDate, weeks }) {
               placeholder="Přidat popis měsíce"
               {...metaField(`month:${month.id}:desc`, "")}
             />
+            {trackKm && (
+              <span className="month__km">
+                Měsíc: {formatKm(sumKm(month.weeks.flatMap((w) => w.blocks)))}
+              </span>
+            )}
           </header>
 
           {month.weeks.map((week) => {
@@ -448,6 +502,11 @@ function TrainingPlan({ planId, startDate, weeks }) {
                         {...metaField(`week:${week.id}:volume`, week.volume)}
                       />
                     </span>
+                    {trackKm && (
+                      <span className="week__km">
+                        Naběhnuto: {formatKm(sumKm(week.blocks))}
+                      </span>
+                    )}
                     <button
                       type="button"
                       className="day__icon day__icon--danger"
@@ -469,6 +528,10 @@ function TrainingPlan({ planId, startDate, weeks }) {
                         block={block}
                         date={date}
                         entry={stored[block.id] || {}}
+                        km={stored[block.id]?.km}
+                        onKmChange={
+                          trackKm ? (v) => updateDay(block.id, { km: v }) : null
+                        }
                         isToday={!!date && toKey(date) === todayKey}
                         onChange={(patch) => updateDay(block.id, patch)}
                         onDateChange={(iso) => updateMeta(`date:${block.id}`, iso)}

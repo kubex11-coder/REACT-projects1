@@ -16,5 +16,5 @@ create policy "owner only"
   on plan_meta
   for all
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'OWNER_EMAIL')
-  with check ((auth.jwt() ->> 'email') = 'OWNER_EMAIL');
+  using ((auth.jwt() ->> 'email') = 'jakubdvorak91@seznam.cz')
+  with check ((auth.jwt() ->> 'email') = 'jakubdvorak91@seznam.cz');

@@ -9,6 +9,7 @@ function RunPage() {
         planId="run"
         startDate={RUN_PLAN_START}
         weeks={RUN_PLAN}
+        trackKm
       />
     </SectionPage>
   );

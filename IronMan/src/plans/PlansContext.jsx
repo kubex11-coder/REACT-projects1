@@ -11,7 +11,7 @@ import { useAuth } from "../auth/AuthContext";
 import { PLAN_DEFS } from "./planDefs";
 import { blockIds, resolveLayout } from "./planLayout";
 
-const FIELDS = ["text", "note", "status"];
+const FIELDS = ["text", "note", "status", "km"];
 // Plány, které mohly mít dřívější data v localStorage (před Supabase).
 const LEGACY_PLANS = ["run"];
 const EMPTY = {};
@@ -19,7 +19,7 @@ const EMPTY = {};
 const PlansContext = createContext(null);
 
 // Všechny záznamy plánů se načtou jednou a sdílí je stránky i navigace (skóre).
-// V paměti: { planId: { "2026-11-09": { text, note, status } } }; null pole vynecháváme.
+// V paměti: { planId: { "2026-11-09": { text, note, status, km } } }; null pole vynecháváme.
 export function PlansProvider({ children }) {
   const { user } = useAuth();
   // Obnovení tokenu vytvoří nový objekt uživatele; data se mají načítat jen při změně účtu.
@@ -50,7 +50,7 @@ export function PlansProvider({ children }) {
     async function load() {
       const { data, error } = await supabase
         .from("plan_entries")
-        .select("plan_id, day, text, note, status");
+        .select("plan_id, day, text, note, status, km");
       if (cancelled) return;
       if (error) {
         setDbError(`Načtení dat se nezdařilo: ${error.message}`);
@@ -123,7 +123,7 @@ export function PlansProvider({ children }) {
     };
   }, [userId]);
 
-  // patch: { text, note, status }. Hodnota null pole vyprázdní
+  // patch: { text, note, status, km }. Hodnota null pole vyprázdní
   // (u textu to znamená návrat k původnímu popisu z plánu).
   const updateEntry = useCallback((planId, day, patch) => {
     setPlans((prev) => {
