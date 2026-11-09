@@ -25,9 +25,12 @@
 }
 
 /* Sloupce zadané výslovně, aby chybějící skóre (odhlášený) neposunulo tlačítko. */
-.navbar__logo {
+.navbar__left {
   grid-column: 1;
   justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 /* Skóre plnění: kruhový ukazatel, barva podle hodnoty (--score-color). */
@@ -159,7 +162,18 @@
 /* Mobil: přihlášený vidí místo loga vlevo skóre a vpravo tlačítko odhlášení. */
 @media (max-width: 700px) {
   .navbar {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+  }
+
+  .navbar__chart-btn {
+    padding: 6px 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .navbar__login {
+    padding: 8px 14px;
+    font-size: 0.85rem;
   }
 
   .navbar__email {
@@ -171,13 +185,12 @@
   }
 
   .navbar__score {
-    grid-column: 1;
-    justify-self: start;
+    grid-column: 2;
   }
 
   .navbar__user,
   .navbar__login {
-    grid-column: 2;
+    grid-column: 3;
   }
 }
 
@@ -202,4 +215,194 @@
 .navbar__login:hover {
   background: #2f80ff;
   border-color: #2f80ff;
+}
+
+/* Tlačítko Graf s šipkou a vyskakovací okno s grafem kilometráže. */
+.navbar__chart-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #22c55e;
+  background: transparent;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.navbar__chart-btn:hover,
+.navbar__chart-btn--open {
+  color: #0b0b0f;
+  background: #22c55e;
+  border-color: #22c55e;
+}
+
+.navbar__chart-btn span {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.navbar__chart-btn--open span {
+  transform: rotate(180deg);
+}
+
+.navbar__modal {
+  /* top se nastavuje z JS na spodní okraj lišty; v portálu, protože backdrop-filter
+     lišty jinak dělá z fixed prvku potomka lišty a ořízne ho. */
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 9;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.navbar__popup {
+  width: min(900px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 20px 24px;
+  background: #14141b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  cursor: pointer;
+}
+
+.navbar__popup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.navbar__popup-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.navbar__popup-close {
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #fff;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.kmchart__legend {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.kmchart__key::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
+.kmchart__key--planned::before {
+  background: #8a8a94;
+}
+
+.kmchart__key--actual::before {
+  background: #22c55e;
+}
+
+.kmchart__scroll {
+  overflow-x: auto;
+}
+
+.kmchart__grid {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.kmchart__sep {
+  stroke: rgba(255, 255, 255, 0.2);
+}
+
+.kmchart__tick {
+  font-size: 11px;
+  fill: rgba(255, 255, 255, 0.6);
+}
+
+.kmchart__month {
+  font-size: 12px;
+  font-weight: 700;
+  fill: rgba(255, 255, 255, 0.85);
+}
+
+.kmchart__line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.kmchart__line--planned {
+  stroke: #8a8a94;
+  stroke-dasharray: 6 4;
+}
+
+.kmchart__line--actual {
+  stroke: #22c55e;
+}
+
+.kmchart__dot--planned {
+  fill: #8a8a94;
+}
+
+.kmchart__dot--actual {
+  fill: #22c55e;
+}
+
+.kmchart__info--detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 22px;
+}
+
+.kmchart__name {
+  font-weight: 700;
+  color: #fff;
+}
+
+.kmchart__val strong {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.kmchart__val--planned strong {
+  color: #c4c4cc;
+}
+
+.kmchart__val--actual strong {
+  color: #22c55e;
+}
+
+.kmchart__info,
+.kmchart__empty {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
 }

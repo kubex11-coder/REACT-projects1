@@ -403,7 +403,20 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
   useEffect(() => {
     if (!loaded || scrolledRef.current) return;
     scrolledRef.current = true;
-    nextBlockRef.current?.scrollIntoView({ block: "center" });
+    const el = nextBlockRef.current;
+    if (!el) return;
+    // Vycentruje blok v části obrazovky pod navigací a přilepenou hlavičkou týdne
+    // (na mobilu); na mobilu ho ještě posune o 75 px výš.
+    const shift = window.matchMedia("(max-width: 700px)").matches ? 75 : 0;
+    const nav = document.querySelector(".navbar");
+    const head = el.closest(".week")?.querySelector(".week__head");
+    let top = nav ? nav.getBoundingClientRect().bottom : 0;
+    if (head && getComputedStyle(head).position === "sticky") {
+      top += head.getBoundingClientRect().height;
+    }
+    const rect = el.getBoundingClientRect();
+    const visibleCenter = top + (window.innerHeight - top) / 2;
+    window.scrollBy(0, rect.top + rect.height / 2 - visibleCenter + shift);
   }, [loaded]);
 
   return (

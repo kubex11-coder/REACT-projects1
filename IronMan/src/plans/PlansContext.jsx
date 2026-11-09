@@ -213,3 +213,39 @@ export function useScore() {
     return { yes, no, percent: answered ? Math.round((yes / answered) * 100) : 0 };
   }, [plans, meta]);
 }
+
+// Z textu objemu ("35–40 km", "12 km") vezme čísla; u rozmezí vrátí střed.
+function parseVolume(text) {
+  const nums = String(text ?? "")
+    .replace(/,/g, ".")
+    .match(/\d+(\.\d+)?/g);
+  if (!nums) return 0;
+  const values = nums.map(Number);
+  return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+// Týdenní kilometráž pro graf: plán (z objemu týdne) a skutečnost (součet km bloků).
+// Vrací [{ monthId, month, week, planned, actual }]; mění se živě s úpravami plánu.
+export function useWeeklyKm(planId) {
+  const { plans, meta } = useContext(PlansContext);
+  return useMemo(() => {
+    const planMeta = meta[planId] || EMPTY;
+    const stored = plans[planId] || EMPTY;
+    const layout = resolveLayout(PLAN_DEFS[planId], planMeta.layout);
+    const rows = [];
+    layout.months.forEach((month) => {
+      month.weeks.forEach((week, i) => {
+        const actual = week.blocks.reduce((sum, b) => sum + (stored[b.id]?.km ?? 0), 0);
+        rows.push({
+          monthId: month.id,
+          month: planMeta[`month:${month.id}:title`] ?? month.name,
+          week: i + 1,
+          title: planMeta[`week:${week.id}:title`] ?? week.title,
+          planned: parseVolume(planMeta[`week:${week.id}:volume`] ?? week.volume),
+          actual: Math.round(actual * 100) / 100,
+        });
+      });
+    });
+    return rows;
+  }, [planId, plans, meta]);
+}
