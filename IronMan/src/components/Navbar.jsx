@@ -1,29 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { FaBars, FaTimes } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { useScore } from "../plans/PlansContext";
 import WeeklyKmChart from "./WeeklyKmChart";
+import WeightChart from "./WeightChart";
+import ScoreChart from "./ScoreChart";
+import { scoreTier } from "./scoreTier";
 import "./navbar.css";
 
 const RING_RADIUS = 23;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
 
-// Bez jediné odpovědi šedá; 80–100 % zelená, 50–79 % oranžová, pod 50 % červená.
-function scoreTier(percent, answered) {
-  if (answered === 0) return "none";
-  if (percent >= 80) return "good";
-  if (percent >= 50) return "mid";
-  return "bad";
-}
-
 function Navbar() {
   const { user, logout } = useAuth();
-  const { yes, no, percent } = useScore();
-  const tier = scoreTier(percent, yes + no);
+  const { pathname } = useLocation();
+  // Na stránce sekce se skóre počítá jen z jejího plánu.
+  const { answered, percent } = useScore(
+    ["run", "swim", "fitko", "food"].find((id) => pathname.startsWith(`/${id}`))
+  );
+  const tier = scoreTier(percent, answered);
   const navigate = useNavigate();
-  const onRun = useLocation().pathname.startsWith("/run");
+  // Graf v liště mají RUN (kilometry), FOOD (ranní váha) a hlavní stránka (skóre sekcí).
+  const chart = pathname === "/"
+    ? { id: "home", label: "Graf skóre", title: "Graf skóre plnění", Chart: ScoreChart }
+    : pathname.startsWith("/run")
+    ? { id: "run", label: "Graf km", title: "Graf kilometráže", Chart: WeeklyKmChart, planId: "run" }
+    : pathname.startsWith("/food")
+    ? { id: "food", label: "Graf váhy", title: "Graf váhy", Chart: WeightChart, planId: "food" }
+    : null;
+  const chartId = chart?.id;
   const [chartOpen, setChartOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef(null);
   // Popup začíná pod spodním okrajem lišty; výšku zjistíme při otevření.
   const [popupTop, setPopupTop] = useState(0);
@@ -35,12 +44,32 @@ function Navbar() {
     return () => window.removeEventListener("keydown", onKey);
   }, [chartOpen]);
 
-  // Mimo stránku RUN se graf nezobrazuje.
+  // Při přechodu na jinou stránku se okno grafu zavře.
   useEffect(() => {
-    if (!onRun) setChartOpen(false);
-  }, [onRun]);
+    setChartOpen(false);
+  }, [chartId]);
+
+  // Hamburger menu (jen na mobilu): zavře se Escapem, klepnutím mimo i změnou stránky.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
+    const onPointer = (e) => {
+      if (!headerRef.current?.contains(e.target)) setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [menuOpen]);
 
   const handleLogout = () => {
+    setMenuOpen(false);
     logout();
     navigate("/");
   };
@@ -51,7 +80,7 @@ function Navbar() {
         <Link to="/" className="navbar__logo">
           KUBE<span>X</span>
         </Link>
-        {user && onRun && (
+        {user && chart && (
           <button
             type="button"
             className={`navbar__chart-btn${chartOpen ? " navbar__chart-btn--open" : ""}`}
@@ -63,7 +92,7 @@ function Navbar() {
               setChartOpen((o) => !o);
             }}
           >
-            Graf km <span aria-hidden="true">▾</span>
+            {chart.label} <span aria-hidden="true">▾</span>
           </button>
         )}
       </div>
@@ -112,7 +141,38 @@ function Navbar() {
           Přihlásit se
         </Link>
       )}
+      {user && (
+        <>
+          <button
+            type="button"
+            className="navbar__burger"
+            aria-label={menuOpen ? "Zavřít menu" : "Otevřít menu"}
+            aria-expanded={menuOpen}
+            onClick={() => {
+              setChartOpen(false);
+              setMenuOpen((o) => !o);
+            }}
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+          {menuOpen && (
+            <nav className="navbar__menu">
+              <Link to="/" className="navbar__menu-item navbar__menu-logo">
+                KUBE<span>X</span>
+              </Link>
+              <button
+                type="button"
+                className="navbar__menu-item"
+                onClick={handleLogout}
+              >
+                Odhlásit se
+              </button>
+            </nav>
+          )}
+        </>
+      )}
       {chartOpen &&
+        chart &&
         createPortal(
         <div
           className="navbar__modal"
@@ -122,11 +182,11 @@ function Navbar() {
           <div
             className="navbar__popup"
             role="dialog"
-            aria-label="Graf kilometráže"
+            aria-label={chart.title}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="navbar__popup-head">
-              <h2>Graf km</h2>
+              <h2>{chart.label}</h2>
               <button
                 type="button"
                 className="navbar__popup-close"
@@ -136,7 +196,7 @@ function Navbar() {
                 ×
               </button>
             </div>
-            <WeeklyKmChart planId="run" />
+            <chart.Chart planId={chart.planId} />
           </div>
         </div>,
         document.body

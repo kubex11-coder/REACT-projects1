@@ -46,7 +46,12 @@ function newId() {
   return `n${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 }
 
-export function seedLayout(startDate, weeks) {
+// Text bloku podle posunu od pondělí ve vzoru týdne { days }.
+function blockFromTemplate(id, date, template, offset) {
+  return { id, date, text: template?.days?.[offset] ?? "" };
+}
+
+export function seedLayout(startDate, weeks, offsets = BLOCK_OFFSETS) {
   const start = parseIso(startDate);
   const months = [];
 
@@ -66,9 +71,9 @@ export function seedLayout(startDate, weeks) {
       id: toKey(monday),
       title: week.title,
       volume: week.volume,
-      blocks: BLOCK_OFFSETS.map((offset) => {
+      blocks: offsets.map((offset) => {
         const key = toKey(addDays(monday, offset));
-        return { id: key, date: key, text: week.days[offset] };
+        return blockFromTemplate(key, key, week, offset);
       }),
     });
   });
@@ -84,7 +89,7 @@ export function resolveLayout(def, layoutJson) {
   } catch {
     // chybějící nebo poškozená hodnota -> výchozí rozložení
   }
-  return def ? seedLayout(def.startDate, def.weeks) : { months: [] };
+  return def ? seedLayout(def.startDate, def.weeks, def.blockOffsets) : { months: [] };
 }
 
 export function blockIds(layout) {
@@ -95,22 +100,48 @@ export function blockIds(layout) {
   return ids;
 }
 
+// Cheatday: v každém týdnu je první označený blok (v pořadí v týdnu) "ok" a každý
+// další "over". Vrací { idBloku: "ok" | "over" }; bloky bez cheatday v něm nejsou.
+export function getCheatResults(layout, stored) {
+  const results = {};
+  layout.months.forEach((m) =>
+    m.weeks.forEach((w) => {
+      let used = false;
+      w.blocks.forEach((b) => {
+        if (!stored[b.id]?.cheat) return;
+        results[b.id] = used ? "over" : "ok";
+        used = true;
+      });
+    })
+  );
+  return results;
+}
+
 export function createBlock(date) {
   return { id: newId(), date: date ? toKey(date) : "", text: "Nový trénink" };
 }
 
-// Nový týden o 5 blocích (Út, St, Čt, Pá, Ne) v týdnu po lastDate (je-li známé).
-export function createWeek(lastDate) {
+// Nový týden v týdnu po lastDate (je-li známé); ve výchozím stavu o 5 blocích (Út, St, Čt, Pá, Ne).
+// Vzor týdne (template) { days } předvyplní texty bloků podle posunu od pondělí.
+export function createWeek(
+  lastDate,
+  offsets = BLOCK_OFFSETS,
+  volume = "0 km",
+  template = null
+) {
   const monday = lastDate
     ? addDays(lastDate, (8 - lastDate.getDay()) % 7 || 7)
     : null;
   return {
     id: newId(),
     title: "Nový týden",
-    volume: "0 km",
-    blocks: BLOCK_OFFSETS.map((offset) =>
-      createBlock(monday && addDays(monday, offset))
-    ),
+    volume,
+    blocks: offsets.map((offset) => {
+      const block = createBlock(monday && addDays(monday, offset));
+      return template
+        ? blockFromTemplate(block.id, block.date, template, offset)
+        : block;
+    }),
   };
 }
 

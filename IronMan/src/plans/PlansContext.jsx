@@ -9,12 +9,14 @@ import {
 import { supabase } from "../supabase";
 import { useAuth } from "../auth/AuthContext";
 import { PLAN_DEFS } from "./planDefs";
-import { blockIds, resolveLayout } from "./planLayout";
+import { blockIds, getCheatResults, parseIso, resolveLayout } from "./planLayout";
 
-const FIELDS = ["text", "note", "status", "km"];
+const FIELDS = ["text", "note", "status", "km", "weight", "kcal_in", "kcal_out", "cheat"];
 // Plány, které mohly mít dřívější data v localStorage (před Supabase).
 const LEGACY_PLANS = ["run"];
 const EMPTY = {};
+// Plány, ze kterých se skládá celkové skóre mimo stránky sekcí.
+const OVERALL_SCORE_PLANS = ["run", "swim", "fitko", "food"];
 
 const PlansContext = createContext(null);
 
@@ -50,7 +52,7 @@ export function PlansProvider({ children }) {
     async function load() {
       const { data, error } = await supabase
         .from("plan_entries")
-        .select("plan_id, day, text, note, status, km");
+        .select("*"); // sloupce, které v databázi ještě nejsou (migrace 5), se prostě vynechají
       if (cancelled) return;
       if (error) {
         setDbError(`Načtení dat se nezdařilo: ${error.message}`);
@@ -77,7 +79,7 @@ export function PlansProvider({ children }) {
         if (!loaded[row.plan_id]) loaded[row.plan_id] = {};
         const entry = {};
         FIELDS.forEach((field) => {
-          if (row[field] !== null) entry[field] = row[field];
+          if (row[field] != null) entry[field] = row[field];
         });
         loaded[row.plan_id][row.day] = entry;
       });
@@ -191,27 +193,56 @@ export function usePlanMeta(planId) {
   return [meta[planId] || EMPTY, update];
 }
 
-// Skóre plnění: podíl dnů označených Ano ze všech dnů označených Ano nebo Ne (0–100 %).
+// Skóre plnění: průměr skóre bloků, které už něco obsahují (0–100 %), viz blockScore.
 // Počítají se jen bloky, které v plánu ještě jsou (smazané či odebrané se ignorují).
-export function useScore() {
+// Se zadaným planId se počítá jen daný plán; jinak je skóre průměr skóre jednotlivých
+// plánů RUN, SWIM, FITKO a FOOD, do kterého se plán bez jediné odpovědi nezapočítává.
+export function useScore(planId) {
   const { plans, meta } = useContext(PlansContext);
   return useMemo(() => {
-    let yes = 0;
-    let no = 0;
-    Object.entries(plans).forEach(([planId, plan]) => {
-      const def = PLAN_DEFS[planId];
-      const valid = def
-        ? blockIds(resolveLayout(def, meta[planId]?.layout))
-        : null;
-      Object.entries(plan).forEach(([blockId, { status }]) => {
+    const perPlan = [];
+    Object.entries(plans).forEach(([id, plan]) => {
+      if (planId ? id !== planId : !OVERALL_SCORE_PLANS.includes(id)) return;
+      const def = PLAN_DEFS[id];
+      const layout = def ? resolveLayout(def, meta[id]?.layout) : null;
+      const valid = layout ? blockIds(layout) : null;
+      const cheat = def?.kcalScore ? getCheatResults(layout, plan) : {};
+      let total = 0;
+      let answered = 0;
+      Object.entries(plan).forEach(([blockId, entry]) => {
         if (valid && !valid.has(blockId)) return;
-        if (status === "yes") yes += 1;
-        if (status === "no") no += 1;
+        // Cheatday přebíjí ostatní hodnoty bloku: první v týdnu 100 %, další 0 %.
+        const score = cheat[blockId]
+          ? cheat[blockId] === "ok"
+            ? 1
+            : 0
+          : blockScore(entry, def?.kcalScore);
+        if (score === null) return;
+        total += score;
+        answered += 1;
       });
+      if (answered > 0) perPlan.push({ mean: total / answered, answered });
     });
-    const answered = yes + no;
-    return { yes, no, percent: answered ? Math.round((yes / answered) * 100) : 0 };
-  }, [plans, meta]);
+    const answered = perPlan.reduce((sum, p) => sum + p.answered, 0);
+    const mean = perPlan.length
+      ? perPlan.reduce((sum, p) => sum + p.mean, 0) / perPlan.length
+      : 0;
+    return { answered, percent: Math.round(mean * 100) };
+  }, [planId, plans, meta]);
+}
+
+// Skóre bloku (0–1) nebo null, když v něm zatím nic není. Běžný blok: Ano = 1, Ne = 0.
+// S kcalScore (FOOD) je to průměr z půstu (Ano = 1, Ne = 0) a rozdílu kcal
+// (přijaté − spálené: deficit, tedy nekladný = 1, přebytek = 0); započítá se jen vyplněná část.
+function blockScore(entry, kcalScore) {
+  const parts = [];
+  if (entry.status === "yes") parts.push(1);
+  if (entry.status === "no") parts.push(0);
+  if (kcalScore && entry.kcal_in != null && entry.kcal_out != null) {
+    parts.push(entry.kcal_in - entry.kcal_out <= 0 ? 1 : 0);
+  }
+  if (!kcalScore) return parts[0] ?? null;
+  return parts.length ? parts.reduce((a, b) => a + b, 0) / parts.length : null;
 }
 
 // Z textu objemu ("35–40 km", "12 km") vezme čísla; u rozmezí vrátí střed.
@@ -243,6 +274,33 @@ export function useWeeklyKm(planId) {
           title: planMeta[`week:${week.id}:title`] ?? week.title,
           planned: parseVolume(planMeta[`week:${week.id}:volume`] ?? week.volume),
           actual: Math.round(actual * 100) / 100,
+        });
+      });
+    });
+    return rows;
+  }, [planId, plans, meta]);
+}
+
+// Denní řada ranní váhy pro graf: jeden bod na každý blok v pořadí plánu.
+// Vrací [{ monthId, month, week, date, weight }]; weight je null, když není zadaná.
+export function useWeightSeries(planId) {
+  const { plans, meta } = useContext(PlansContext);
+  return useMemo(() => {
+    const planMeta = meta[planId] || EMPTY;
+    const stored = plans[planId] || EMPTY;
+    const layout = resolveLayout(PLAN_DEFS[planId], planMeta.layout);
+    const rows = [];
+    layout.months.forEach((month) => {
+      month.weeks.forEach((week, i) => {
+        week.blocks.forEach((block) => {
+          const date = parseIso(planMeta[`date:${block.id}`]) || parseIso(block.date);
+          rows.push({
+            monthId: month.id,
+            month: planMeta[`month:${month.id}:title`] ?? month.name,
+            week: i + 1,
+            date: date ? `${date.getDate()}. ${date.getMonth() + 1}.` : "Bez data",
+            weight: stored[block.id]?.weight ?? null,
+          });
         });
       });
     });

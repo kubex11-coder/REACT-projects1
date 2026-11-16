@@ -7,7 +7,9 @@ import Navbar from "./components/Navbar";
 import Homepage from "./pages/home/Homepage";
 import Login from "./pages/login/Login";
 import RunPage from "./pages/run/RunPage";
-import SectionPage from "./pages/section/SectionPage";
+import SwimPage from "./pages/swim/SwimPage";
+import FitkoPage from "./pages/fitko/FitkoPage";
+import FoodPage from "./pages/food/FoodPage";
 import "./App.css";
 
 // Podstránky vyžadují přihlášení přes Supabase.
@@ -15,8 +17,9 @@ const PROTECT_SECTIONS = true;
 
 const sections = [
   { path: "/run", element: <RunPage /> },
-  { path: "/swim", element: <SectionPage title="SWIM" /> },
-  { path: "/fitko", element: <SectionPage title="FITKO" /> },
+  { path: "/swim", element: <SwimPage /> },
+  { path: "/fitko", element: <FitkoPage /> },
+  { path: "/food", element: <FoodPage /> },
 ];
 
 function App() {

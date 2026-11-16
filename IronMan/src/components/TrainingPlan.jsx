@@ -16,6 +16,7 @@ import {
   addWeekToMonth,
   createBlock,
   createWeek,
+  getCheatResults,
   moveBlock,
   moveWeek,
   parseIso,
@@ -26,6 +27,8 @@ import {
 } from "../plans/planLayout";
 import EditableText from "./EditableText";
 import "./trainingplan.css";
+
+const NO_METRICS = [];
 
 // Indexováno podle Date.getDay() (0 = neděle).
 const DAY_NAMES = ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"];
@@ -38,8 +41,17 @@ function formatKm(total) {
   return `${Math.round(total * 100) / 100} km`.replace(".", ",");
 }
 
+// Čas se ukládá v minutách; od hodiny se zobrazuje jako "1 h 30 min".
+function formatMinutes(total) {
+  const min = Math.round(total);
+  return min >= 60 ? `${Math.floor(min / 60)} h ${min % 60} min` : `${min} min`;
+}
+
+const formatTotal = (total, unit) =>
+  unit === "min" ? formatMinutes(total) : formatKm(total);
+
 // Kilometry jsou v databázi číslo; v poli se zobrazují s čárkou a zadat jde čárka i tečka.
-function KmInput({ value, onSave }) {
+function KmInput({ value, onSave, label, unit }) {
   const shown = value == null ? "" : String(value).replace(".", ",");
   const [draft, setDraft] = useState(shown);
   useEffect(() => setDraft(shown), [shown]);
@@ -58,7 +70,7 @@ function KmInput({ value, onSave }) {
 
   return (
     <div className="day__section day__section--km">
-      <span className="day__label">Naběhnuto</span>
+      <span className="day__label">{label}</span>
       <label className="day__km">
         <input
           type="text"
@@ -70,8 +82,27 @@ function KmInput({ value, onSave }) {
           onBlur={commit}
           onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
         />
-        km
+        {unit}
       </label>
+    </div>
+  );
+}
+
+// Rozdíl přijatých a spálených kcal; deficit (záporný) je zelený, přebytek (kladný) červený.
+function KcalDiff({ entry }) {
+  const { kcal_in: eaten, kcal_out: burned } = entry;
+  const diff =
+    eaten == null || burned == null ? null : Math.round((eaten - burned) * 100) / 100;
+  const tone = diff == null || diff === 0 ? "" : diff < 0 ? " day__diff--good" : " day__diff--bad";
+
+  return (
+    <div className="day__section day__section--row">
+      <span className="day__label">Rozdíl</span>
+      <span className={`day__diff${tone}`}>
+        {diff == null
+          ? "—"
+          : `${diff > 0 ? "+" : ""}${String(diff).replace(".", ",")} kcal`}
+      </span>
     </div>
   );
 }
@@ -81,6 +112,16 @@ function Day({
   date,
   entry,
   km,
+  kmLabel,
+  trackUnit,
+  smallText,
+  showText,
+  metrics,
+  showDiff,
+  statusLabel,
+  cheatday,
+  cheatResult,
+  compact,
   onKmChange,
   isToday,
   onChange,
@@ -102,7 +143,10 @@ function Day({
   };
 
   const save = () => {
-    onChange({ text: draft.text.trim(), note: draft.note.trim() || null });
+    onChange({
+      ...(showText && { text: draft.text.trim() }),
+      note: draft.note.trim() || null,
+    });
     // Prázdné nebo výchozí datum smaže úpravu a vrátí výchozí hodnotu.
     onDateChange(draft.date && draft.date !== block.date ? draft.date : null);
     setEditing(false);
@@ -114,7 +158,13 @@ function Day({
 
   return (
     <div
-      className={`day${entry.status ? ` day--${entry.status}` : ""}${
+      className={`day${
+        cheatResult
+          ? ` day--${cheatResult === "ok" ? "yes" : "no"}`
+          : entry.status
+          ? ` day--${entry.status}`
+          : ""
+      }${compact ? " day--compact" : ""}${
         isToday ? " day--today" : ""
       }${dnd.dragging ? " is-dragging" : ""}${
         dnd.dropSide ? ` day--drop-${dnd.dropSide}` : ""
@@ -171,20 +221,24 @@ function Day({
         )}
       </div>
 
-      <div className="day__section">
-        <span className="day__label">Popis tréninku</span>
-        {editing ? (
-          <textarea
-            className="day__input"
-            value={draft.text}
-            onChange={(e) => setDraft({ ...draft, text: e.target.value })}
-            rows={3}
-            autoFocus
-          />
-        ) : (
-          <p className="day__text">{text || "—"}</p>
-        )}
-      </div>
+      {showText && (
+        <div className="day__section">
+          <span className="day__label">Popis tréninku</span>
+          {editing ? (
+            <textarea
+              className="day__input"
+              value={draft.text}
+              onChange={(e) => setDraft({ ...draft, text: e.target.value })}
+              rows={3}
+              autoFocus
+            />
+          ) : (
+            <p className={`day__text${smallText ? " day__text--small" : ""}`}>
+              {text || "—"}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="day__section">
         <span className="day__label">Poznámka</span>
@@ -200,7 +254,22 @@ function Day({
         )}
       </div>
 
-      {!editing && onKmChange && <KmInput value={km} onSave={onKmChange} />}
+      {!editing && onKmChange && (
+        <KmInput value={km} onSave={onKmChange} label={kmLabel} unit={trackUnit} />
+      )}
+
+      {!editing &&
+        metrics.map(({ field, label, unit }) => (
+          <KmInput
+            key={field}
+            value={entry[field]}
+            onSave={(v) => onChange({ [field]: v })}
+            label={label}
+            unit={unit}
+          />
+        ))}
+
+      {!editing && showDiff && <KcalDiff entry={entry} />}
 
       {editing ? (
         <div className="day__actions">
@@ -213,7 +282,7 @@ function Day({
         </div>
       ) : (
         <div className="day__section day__section--status">
-          <span className="day__label">Splněno</span>
+          <span className="day__label">{statusLabel}</span>
           <div className="day__choices">
             <label className="day__choice day__choice--yes">
               <input
@@ -240,11 +309,47 @@ function Day({
           </div>
         </div>
       )}
+
+      {!editing && cheatday && (
+        <button
+          type="button"
+          className={`day__cheat${entry.cheat ? " day__cheat--on" : ""}`}
+          aria-pressed={!!entry.cheat}
+          onClick={() => onChange({ cheat: entry.cheat ? null : true })}
+        >
+          Cheatday
+        </button>
+      )}
     </div>
   );
 }
 
-function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
+function TrainingPlan({
+  planId,
+  startDate,
+  weeks,
+  blockOffsets,
+  newWeekVolume,
+  newWeekTemplate,
+  trackKm = false,
+  kmLabel = "Naběhnuto",
+  // Jednotka sledované hodnoty: "km" nebo "min"; ukládá se do sloupce km tabulky plan_entries.
+  trackUnit = "km",
+  showVolume = true,
+  // Popis tréninku v bloku; u FOOD se nepoužívá.
+  showText = true,
+  // Další číselná pole bloku: [{ field, label, unit }]; field je sloupec v plan_entries.
+  metrics = NO_METRICS,
+  // Pod poli zobrazí rozdíl kcal_in - kcal_out.
+  showKcalDiff = false,
+  // Nadpis u zaškrtávátek Ano/Ne.
+  statusLabel = "Splněno",
+  // Tlačítko Cheatday: první v týdnu = 100 %, každé další 0 % (viz cheatResults).
+  cheatday = false,
+  // Nižší karty bloků: popisky a hodnoty vedle sebe, menší mezery.
+  compact = false,
+  smallText = false,
+}) {
   const [stored, updateDay] = usePlan(planId);
   const [meta, updateMeta] = usePlanMeta(planId);
   const loaded = usePlansLoaded();
@@ -255,8 +360,12 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
   const todayKey = toKey(new Date());
 
   const layout = useMemo(
-    () => resolveLayout({ startDate, weeks }, meta.layout),
-    [startDate, weeks, meta.layout]
+    () => resolveLayout({ startDate, weeks, blockOffsets }, meta.layout),
+    [startDate, weeks, blockOffsets, meta.layout]
+  );
+  const cheatResults = useMemo(
+    () => (cheatday ? getCheatResults(layout, stored) : {}),
+    [cheatday, layout, stored]
   );
   const saveLayout = (next) => updateMeta("layout", JSON.stringify(next));
 
@@ -392,12 +501,13 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
     if (window.confirm(message)) action();
   };
 
-  // Následující trénink = první blok bez zaškrtnutého Ano/Ne (jsou-li všechny
+  // Následující trénink = první blok bez zaškrtnutého Ano/Ne nebo Cheatday (jsou-li všechny
   // vyplněné, tak poslední). Při načtení stránky se vycentruje; při práci s
   // plánem se už nescrolluje.
   const allBlocks = layout.months.flatMap((m) => m.weeks.flatMap((w) => w.blocks));
   const nextBlock =
-    allBlocks.find((b) => !stored[b.id]?.status) || allBlocks[allBlocks.length - 1];
+    allBlocks.find((b) => !stored[b.id]?.status && !(cheatday && stored[b.id]?.cheat)) ||
+    allBlocks[allBlocks.length - 1];
   const nextBlockId = nextBlock?.id;
 
   useEffect(() => {
@@ -406,8 +516,8 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
     const el = nextBlockRef.current;
     if (!el) return;
     // Vycentruje blok v části obrazovky pod navigací a přilepenou hlavičkou týdne
-    // (na mobilu); na mobilu ho ještě posune o 75 px výš.
-    const shift = window.matchMedia("(max-width: 700px)").matches ? 75 : 0;
+    // (na mobilu); na mobilu ho ještě posune o 55 px výš.
+    const shift = window.matchMedia("(max-width: 700px)").matches ? 55 : 0;
     const nav = document.querySelector(".navbar");
     const head = el.closest(".week")?.querySelector(".week__head");
     let top = nav ? nav.getBoundingClientRect().bottom : 0;
@@ -440,7 +550,8 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
             />
             {trackKm && (
               <span className="month__km">
-                Měsíc: {formatKm(sumKm(month.weeks.flatMap((w) => w.blocks)))}
+                Měsíc:{" "}
+                {formatTotal(sumKm(month.weeks.flatMap((w) => w.blocks)), trackUnit)}
               </span>
             )}
           </header>
@@ -508,16 +619,18 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
                         {...metaField(`week:${week.id}:title`, week.title)}
                       />
                     </h3>
-                    <span className="week__volume">
-                      Objem:{" "}
-                      <EditableText
-                        placeholder="—"
-                        {...metaField(`week:${week.id}:volume`, week.volume)}
-                      />
-                    </span>
+                    {showVolume && (
+                      <span className="week__volume">
+                        Objem:{" "}
+                        <EditableText
+                          placeholder="—"
+                          {...metaField(`week:${week.id}:volume`, week.volume)}
+                        />
+                      </span>
+                    )}
                     {trackKm && (
                       <span className="week__km">
-                        Naběhnuto: {formatKm(sumKm(week.blocks))}
+                        {kmLabel}: {formatTotal(sumKm(week.blocks), trackUnit)}
                       </span>
                     )}
                     <button
@@ -542,6 +655,16 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
                         date={date}
                         entry={stored[block.id] || {}}
                         km={stored[block.id]?.km}
+                        kmLabel={kmLabel}
+                        trackUnit={trackUnit}
+                        smallText={smallText}
+                        showText={showText}
+                        metrics={metrics}
+                        showDiff={showKcalDiff}
+                        statusLabel={statusLabel}
+                        cheatday={cheatday}
+                        compact={compact}
+                        cheatResult={cheatResults[block.id]}
                         onKmChange={
                           trackKm ? (v) => updateDay(block.id, { km: v }) : null
                         }
@@ -579,7 +702,7 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
                   type="button"
                   className="add add--week"
                   onClick={() =>
-                    saveLayout(addWeekAfter(layout, week.id, createWeek(lastDate)))
+                    saveLayout(addWeekAfter(layout, week.id, createWeek(lastDate, blockOffsets, newWeekVolume, newWeekTemplate)))
                   }
                 >
                   <FaPlus /> Přidat týden
@@ -593,7 +716,7 @@ function TrainingPlan({ planId, startDate, weeks, trackKm = false }) {
               type="button"
               className="add add--week"
               onClick={() =>
-                saveLayout(addWeekToMonth(layout, month.id, createWeek(null)))
+                saveLayout(addWeekToMonth(layout, month.id, createWeek(null, blockOffsets, newWeekVolume, newWeekTemplate)))
               }
             >
               <FaPlus /> Přidat týden

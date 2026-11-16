@@ -495,8 +495,49 @@
   margin-top: auto;
 }
 
-.day__section--km + .day__section--status {
+.day__section--km + .day__section--status,
+.day__section--km + .day__section--km {
   margin-top: 0;
+}
+
+/* FOOD: tlačítko Cheatday úplně dole v bloku. */
+.day__cheat {
+  margin-top: 8px;
+  padding: 10px 12px;
+  font: inherit;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.day__cheat:hover {
+  border-color: #2f80ff;
+}
+
+.day__cheat--on {
+  color: #fff;
+  background: #2f80ff;
+  border-color: #2f80ff;
+}
+
+/* FOOD: rozdíl přijatých a spálených kcal; deficit (záporný) zeleně, přebytek (kladný) červeně. */
+.day__diff {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.day__diff--good {
+  color: #22c55e;
+}
+
+.day__diff--bad {
+  color: #ef4444;
 }
 
 .day__km {
@@ -676,4 +717,75 @@
 
 .day__text--note {
   color: rgba(255, 255, 255, 0.75);
+}
+
+/* Menší popis tréninku (SWIM): polovina běžné velikosti. */
+.day__text--small {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 700px) {
+  .day__text--small {
+    font-size: 0.75rem;
+  }
+}
+
+/* Kompaktní karty (FOOD): menší mezery a popisek s hodnotou v jednom řádku. */
+.day.day--compact {
+  gap: 8px;
+  padding: 12px 14px;
+}
+
+.day--compact .day__section {
+  gap: 4px;
+}
+
+.day--compact .day__section--km,
+.day--compact .day__section--row,
+.day--compact .day__section--status {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 0;
+}
+
+.day--compact .day__text--note {
+  line-height: 1.3;
+}
+
+.day--compact .day__choices {
+  gap: 6px;
+}
+
+.day--compact .day__choice {
+  flex: none;
+}
+
+.day--compact .day__choice-box {
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 0.8rem;
+}
+
+.day--compact .day__km-input {
+  width: 70px;
+  padding: 4px 8px;
+}
+
+.day--compact .day__cheat {
+  margin-top: 2px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 700px) {
+  .day.day--compact {
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  .day--compact .day__choice-box {
+    min-height: 40px;
+  }
 }
