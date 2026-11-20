@@ -1,0 +1,75 @@
+.quotes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 800px;
+  list-style: none;
+}
+
+.quote {
+  padding: 18px 20px;
+  background: #0d0d12;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
+.quote__text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.quote__author {
+  margin-top: 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.quote__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.quote__rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.quote__rating select {
+  padding: 6px 10px;
+  font: inherit;
+  color: #fff;
+  background: #000;
+  border: 1px solid #2f80ff;
+  border-radius: 8px;
+}
+
+.quote__remove {
+  padding: 6px 14px;
+  font: inherit;
+  font-weight: 600;
+  color: #f87171;
+  background: transparent;
+  border: 1px solid #f87171;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.quote__remove:hover {
+  color: #fff;
+  background: #f87171;
+}
+
+.quotes__empty {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.quotes__error {
+  margin-bottom: 12px;
+  color: #f87171;
+}

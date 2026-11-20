@@ -10,6 +10,9 @@ import RunPage from "./pages/run/RunPage";
 import SwimPage from "./pages/swim/SwimPage";
 import FitkoPage from "./pages/fitko/FitkoPage";
 import FoodPage from "./pages/food/FoodPage";
+import QuotesPage from "./pages/quotes/QuotesPage";
+import { QuotesProvider } from "./quotes/QuotesContext";
+import DailyQuote from "./quotes/DailyQuote";
 import "./App.css";
 
 // Podstránky vyžadují přihlášení přes Supabase.
@@ -20,12 +23,14 @@ const sections = [
   { path: "/swim", element: <SwimPage /> },
   { path: "/fitko", element: <FitkoPage /> },
   { path: "/food", element: <FoodPage /> },
+  { path: "/quotes", element: <QuotesPage /> },
 ];
 
 function App() {
   return (
     <AuthProvider>
       <PlansProvider>
+      <QuotesProvider>
       <BrowserRouter>
         <div className="app">
           <Navbar />
@@ -47,8 +52,10 @@ function App() {
             ))}
           </Routes>
           <DbErrorBanner />
+          <DailyQuote />
         </div>
       </BrowserRouter>
+      </QuotesProvider>
       </PlansProvider>
     </AuthProvider>
   );

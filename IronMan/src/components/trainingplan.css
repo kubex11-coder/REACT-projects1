@@ -105,6 +105,29 @@
   border-color: #f87171;
 }
 
+.day--partial {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: #facc15;
+}
+
+.day--cheat {
+  background: rgba(47, 128, 255, 0.14);
+  border-color: #2f80ff;
+}
+
+/* Dnešní blok má modrý obrys jen dokud je prázdný; s vyplněnou hodnotou přejde na barvu bloku. */
+.day--today.day--yes {
+  box-shadow: 0 0 0 1px #22c55e;
+}
+
+.day--today.day--no {
+  box-shadow: 0 0 0 1px #f87171;
+}
+
+.day--today.day--partial {
+  box-shadow: 0 0 0 1px #facc15;
+}
+
 .day__head {
   display: flex;
   align-items: center;
@@ -332,6 +355,14 @@
   .day--no:hover {
     border-color: #f87171;
   }
+
+  .day--partial:hover {
+    border-color: #facc15;
+  }
+
+  .day--cheat:hover {
+    border-color: #2f80ff;
+  }
 }
 
 .day__input {
@@ -523,6 +554,17 @@
   color: #fff;
   background: #2f80ff;
   border-color: #2f80ff;
+}
+
+/* Druhý a další cheatday v týdnu (0 %) je celý červený, tlačítko též. */
+.day__cheat--over {
+  color: #fff;
+  background: #f87171;
+  border-color: #f87171;
+}
+
+.day__cheat--over:hover {
+  border-color: #f87171;
 }
 
 /* FOOD: rozdíl přijatých a spálených kcal; deficit (záporný) zeleně, přebytek (kladný) červeně. */

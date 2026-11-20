@@ -74,12 +74,24 @@
   }
 }
 
-/* Mobil: všechny 4 dlaždice se vejdou na jednu obrazovku bez scrollování.
-   Výška = okno bez navigační lišty (cca 65 px); dlaždice si ji rovnoměrně rozdělí. */
+/* Mobil: menu i dlaždice dohromady max 90 % výšky okna, takže se nikdy neskroluje.
+   Dlaždice jsou v mřížce 2x2 a rozdělí si výšku (okno 90 % bez navigační lišty, cca 66 px). */
 @media (max-width: 720px) {
+  html:has(.home),
+  body:has(.home) {
+    overflow: hidden;
+  }
+
+  .app:has(.home) {
+    height: 90vh;
+    height: 90dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .home {
-    height: calc(100vh - 66px);
-    height: calc(100dvh - 66px);
+    height: calc(90vh - 66px);
+    height: calc(90dvh - 66px);
     min-height: 0;
     padding: 12px;
     overflow: hidden;
@@ -87,13 +99,17 @@
 
   .home__tiles {
     height: 100%;
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    /* výška bloku = půl cesty mezi 130 px a původní plnou výškou (polovina volného místa) */
+    grid-template-rows: repeat(2, minmax(0, calc(((90vh - 102px) / 2 + 130px) / 2)));
+    grid-template-rows: repeat(2, minmax(0, calc(((90dvh - 102px) / 2 + 130px) / 2)));
+    align-content: center;
+    gap: 20px;
   }
 
   .tile {
     aspect-ratio: auto;
+    border: 1px solid rgba(47, 128, 255, 0.6);
     gap: 8px;
     min-height: 0;
   }

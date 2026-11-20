@@ -131,6 +131,9 @@ function Navbar() {
       ) : null}
       {user ? (
         <div className="navbar__user">
+          <Link to="/quotes" className="navbar__login">
+            Citáty
+          </Link>
           <span className="navbar__email">{user.email}</span>
           <button type="button" className="navbar__login" onClick={handleLogout}>
             Odhlásit se
@@ -159,6 +162,9 @@ function Navbar() {
             <nav className="navbar__menu">
               <Link to="/" className="navbar__menu-item navbar__menu-logo">
                 KUBE<span>X</span>
+              </Link>
+              <Link to="/quotes" className="navbar__menu-item">
+                Citáty
               </Link>
               <button
                 type="button"

@@ -234,7 +234,7 @@ export function useScore(planId) {
 // Skóre bloku (0–1) nebo null, když v něm zatím nic není. Běžný blok: Ano = 1, Ne = 0.
 // S kcalScore (FOOD) je to průměr z půstu (Ano = 1, Ne = 0) a rozdílu kcal
 // (přijaté − spálené: deficit, tedy nekladný = 1, přebytek = 0); započítá se jen vyplněná část.
-function blockScore(entry, kcalScore) {
+export function blockScore(entry, kcalScore) {
   const parts = [];
   if (entry.status === "yes") parts.push(1);
   if (entry.status === "no") parts.push(0);

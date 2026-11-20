@@ -8,7 +8,7 @@ import {
   FaTrash,
   FaUndo,
 } from "react-icons/fa";
-import { usePlan, usePlanMeta, usePlansLoaded } from "../plans/PlansContext";
+import { blockScore, usePlan, usePlanMeta, usePlansLoaded } from "../plans/PlansContext";
 import {
   addBlockToWeek,
   addDays,
@@ -156,15 +156,24 @@ function Day({
   const toggleStatus = (value) =>
     onChange({ status: entry.status === value ? null : value });
 
+  // Barva bloku: 100 % zelená, 0 % červená, mezi tím (FOOD 50 %) oranžová;
+  // první cheatday v týdnu je modrý (100 %), každý další červený (0 %).
+  const score = blockScore(entry, showDiff);
+  const tone = cheatResult
+    ? cheatResult === "ok"
+      ? "cheat"
+      : "no"
+    : score === null
+    ? ""
+    : score === 1
+    ? "yes"
+    : score === 0
+    ? "no"
+    : "partial";
+
   return (
     <div
-      className={`day${
-        cheatResult
-          ? ` day--${cheatResult === "ok" ? "yes" : "no"}`
-          : entry.status
-          ? ` day--${entry.status}`
-          : ""
-      }${compact ? " day--compact" : ""}${
+      className={`day${tone ? ` day--${tone}` : ""}${compact ? " day--compact" : ""}${
         isToday ? " day--today" : ""
       }${dnd.dragging ? " is-dragging" : ""}${
         dnd.dropSide ? ` day--drop-${dnd.dropSide}` : ""
@@ -313,7 +322,13 @@ function Day({
       {!editing && cheatday && (
         <button
           type="button"
-          className={`day__cheat${entry.cheat ? " day__cheat--on" : ""}`}
+          className={`day__cheat${
+            entry.cheat
+              ? cheatResult === "over"
+                ? " day__cheat--over"
+                : " day__cheat--on"
+              : ""
+          }`}
           aria-pressed={!!entry.cheat}
           onClick={() => onChange({ cheat: entry.cheat ? null : true })}
         >
